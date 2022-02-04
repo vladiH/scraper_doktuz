@@ -6,8 +6,7 @@ from textwrap import dedent
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import ElementClickInterceptedException
+
 
 logger = logging.getLogger(__name__)
 class DoktuzSeleniumPipeline:
@@ -26,10 +25,11 @@ class DoktuzSeleniumPipeline:
             prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings),
             'savefile.default_directory': local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
+            #chrome_options.add_argument('--no-sandbox')
+            #chrome_options.add_argument('--disable-dev-shm-usage')
+            #chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
+            
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
         except Exception as e:
             logger.warning('fail when spider was opening selenium driver', exc_info=True)
