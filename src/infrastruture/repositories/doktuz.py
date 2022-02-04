@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from infrastruture.external.factory_db import FactoryDataBase
+from src.infrastruture.external.factory_db import FactoryDataBase
 
 
 class DoktuzRepository(ABC):
@@ -8,5 +8,9 @@ class DoktuzRepository(ABC):
         self._factoryDataBase = factoryDataBase
     
     @abstractmethod
-    def saveData(self, data:dict):
+    def save_data(self, data:dict):
+        pass
+
+    @abstractmethod
+    def there_is_code(self, user_code:str):
         pass

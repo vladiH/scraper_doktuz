@@ -1,6 +1,9 @@
+from src.infrastruture.external.models import DoktuzDB
 from abc import ABC, abstractmethod
-
 from sqlalchemy import engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from src.infrastruture.external.base import Base
 class FactoryDataBase(ABC):
     def __init__(self, host, data_base, user, password, port):
         self.host = host
@@ -12,7 +15,15 @@ class FactoryDataBase(ABC):
     @abstractmethod
     def connect(self)->bool:
         pass
+    
+    def init_engine(self, url):
+        self.engine = create_engine(url, pool_size = 5)
+        self.session:sessionmaker = sessionmaker(bind=self.engine)
+        Base.metadata.create_all(self.engine, checkfirst=True)
 
     @abstractmethod
     def execute(self, query):
         pass
+
+    def close(self):
+        self.engine.dispose()

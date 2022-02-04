@@ -1,8 +1,11 @@
 
 import sqlalchemy
-from infrastruture.external.factory_db import FactoryDataBase
+import logging
+from src.infrastruture.external.factory_db import FactoryDataBase
 from sqlalchemy import create_engine
-
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+logger = logging.getLogger(__name__)
 class PostgresConnection(FactoryDataBase):
     def __init__(self, host, data_base, user, password, port):
         """
@@ -21,13 +24,15 @@ class PostgresConnection(FactoryDataBase):
         try:
             url = 'postgresql://{user}:{passwd}@{host}:{port}/{db}'.format(
             user=self.user, passwd=self.password, host=self.host, port=self.port, db=self.data_base)
-            self.engine = create_engine(url, pool_size = 5)
+            self.init_engine(url)
             return True
         except sqlalchemy.exc.OperationalError:
-                return False
+            logger.critical("Could not connect to database", exc_info=True)
+            return False
 
     def execute(self, query):
         try:
             self.engine.execute(query)
         except sqlalchemy.exc.ProgrammingError as e:
+            logger.critical("Could not execute query: {}".format(e), exc_info=True)
             raise sqlalchemy.exc.SQLAlchemyError(e)
