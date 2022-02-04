@@ -27,6 +27,9 @@ class DoktuzSeleniumPipeline:
             'savefile.default_directory': local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
             chrome_options.add_argument('--kiosk-printing')
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
         except Exception as e:
             logger.warning('fail when spider was opening selenium driver', exc_info=True)
