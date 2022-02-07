@@ -14,6 +14,8 @@ class DoktuzItem(scrapy.Item):
     proyecto = Field(output_processor=TakeFirst())
     t_exam = Field(output_processor=TakeFirst())
     paciente = Field(output_processor=TakeFirst())
+    certificado = Field(output_processor=TakeFirst())
+    certificado_downloaded = Field(output_processor=TakeFirst())
     imp = Field(output_processor=TakeFirst())
     imp_downloaded = Field(output_processor=TakeFirst())
     cookie = Field(output_processor=TakeFirst())

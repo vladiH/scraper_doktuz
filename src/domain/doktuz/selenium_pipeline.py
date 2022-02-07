@@ -8,20 +8,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
 class DoktuzSeleniumPipeline:
-    def __init__(self,driver_path):
+    def __init__(self,driver_path, local_dir):
         self.driver_path = driver_path
+        self.local_dir = local_dir
         self.cookie = None
 
     def open_spider(self, spider):
         try:
-            local_dir = os.getcwd()
-            local_dir = local_dir + '/pdfs'
-            self.create_directory(local_dir)
+            self.local_dir = self.local_dir + '/pdfs'
+            self.create_directory(self.local_dir)
             chrome_options = webdriver.ChromeOptions()
             settings = {"recentDestinations": [{"id": "Save as PDF", "origin": "local", "account": ""}],
             "selectedDestinationId": "Save as PDF", "version": 2}
             prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings),
-            'savefile.default_directory': local_dir}
+            'savefile.default_directory': self.local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument('--disable-dev-shm-usage')
@@ -41,6 +41,7 @@ class DoktuzSeleniumPipeline:
         dp = Config.DRIVER_PATH
         return cls(
             driver_path=dp,
+            local_dir = os.getcwd()
         )
 
     async def process_item(self, item, spider):
@@ -55,19 +56,32 @@ class DoktuzSeleniumPipeline:
             if(not self.driver.get_cookies()):
                 Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
             else:
+                dir_name = self.local_dir+'/'+item['codigo']
                 if(item['imp']!=None):
-                    self.driver.get(item['imp'])
-                    self.wait_for_ajax()
-                    self.wait_for_loading_fade()
-                    self.wait_until_images_loaded(self.driver)
-                    self.print_page(item['codigo'] + '.pdf')
-                    item['imp'] = item['codigo'] + '.pdf'
+                    self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                     item['imp_downloaded'] = True
-            del item['cookie']
-            return item
+                    item['imp'] = item['codigo']+"-imp.pdf"
+                if(item['certificado']!=None):
+                    self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
+                    item['certificado_downloaded'] = True
+                    item['certificado'] = item['codigo']+"-certificado.pdf"
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}'.format(item), exc_info=True)
-        
+        finally:
+            del item['cookie']
+            return item
+    def page_as_pdf(self, link, dir_name, file_name):
+        try:
+            self.driver.get(link)
+            #self.wait_for_ajax()
+            self.wait_for_loading_fade()
+            self.wait_until_images_loaded(self.driver)
+            #self.create_directory(dir_name)
+            self.print_page(file_name)
+        except Exception as e:
+            Logger.error('fail when pages is converted as pdf')
+            raise e   
+
     def wait_for_ajax(self):
         wait = WebDriverWait(self.driver, 15)
         try:
