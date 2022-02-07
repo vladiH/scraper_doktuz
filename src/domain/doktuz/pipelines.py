@@ -6,10 +6,8 @@
 
 # useful for handling different item types with a single interface
 import re
+from config import Logger
 import logging
-
-logger = logging.getLogger(__name__)
-
 class DoktuzPipeline:
     def process_item(self, item, spider):
         try:
@@ -19,4 +17,7 @@ class DoktuzPipeline:
                 item['imp'] = valueImp
             return item
         except Exception as e:
-            logger.warning('fail when spider was processing imp value from item: '+ item['imp'], exc_info=True)
+            Logger.error('DoktuzPipeline: fail when spider was processing imp value from item: {} '.format(
+                item
+            ), exc_info=True)
+            raise e

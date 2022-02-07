@@ -1,6 +1,5 @@
 import scrapy
-import logging
-import os
+from config import Config, Logger
 from scrapy.http import Response, Request
 from scrapy.item import Field
 from scrapy.item import Item
@@ -12,8 +11,6 @@ from scrapy.loader import ItemLoader
 from selenium.webdriver import Chrome
 from src.domain.doktuz.items import DoktuzItem
 from scrapy.utils.project import get_project_settings
-
-logger = logging.getLogger(__name__)
 class Doktuz(CrawlSpider):
   #name = 'Doktuz'
   # custom_settings = {
@@ -33,7 +30,9 @@ class Doktuz(CrawlSpider):
       ), follow=True, callback='parse_data',),
   )
 
-  def __init__(self,*args, **kwargs):
+  def __init__(self, *args, **kwargs):
+    self.init_date = kwargs['init_date']
+    self.end_date = kwargs['end_date']
     self.name = kwargs['name']
     self.start_urls = []
     super(Doktuz, self).__init__(*args, **kwargs) 
@@ -41,6 +40,8 @@ class Doktuz(CrawlSpider):
   @classmethod
   def from_crawler(cls, crawler, *args, **kwargs):
     spider = cls(
+      init_date = kwargs['init_date'],
+      end_date = kwargs['end_date'],
       name = crawler.settings.get('BOT_NAME'),
     )
     spider._follow_links = crawler.settings.getbool('CRAWLSPIDER_FOLLOW_LINKS', True)
@@ -49,15 +50,16 @@ class Doktuz(CrawlSpider):
 
   def start_requests(self):
     try:
-      return [scrapy.FormRequest("https://intranet.doktuz.com/index.php?usuario=PPAMOLSA&pass=PPAMOLSA&btnenviar=Aceptar",
-                               formdata={'usuario': 'PPAMOLSA', 'pass': 'PPAMOLSA'},
+      return [scrapy.FormRequest("https://intranet.doktuz.com/index.php?usuario={}&pass={}&btnenviar=Aceptar".format(Config.DOKTUZ_USERNAME,Config.DOKTUZ_PASSWORD),
+                               formdata={},
                                callback=self.parse_resultados)]
     except Exception as e:
-      logger.critical('fail when spider was starting', exc_info=True)
+      Logger.critical('Doktuz.start_requests: fail when spider was starting', exc_info=True)
                                
   def parse_resultados(self, response:Response):
+    Logger.info('Doktuz.parse_resultados: init_date {}, end_date {} '.format(self.init_date, self.end_date))
     self.cookie = response.request.headers.getlist('Cookie')[0].decode('utf-8')
-    return Request(response.url+'?fechafinal=27-01-2022&fechainicio=01-01-2022&dnip=&descripcion=&proyecto=&idempresa4=')                            
+    return Request(response.url+'?fechafinal={}&fechainicio={}&dnip=&descripcion=&proyecto=&idempresa4='.format(self.end_date, self.init_date))                            
   
   def parse_data(self, response:Response):
     try:
@@ -75,13 +77,12 @@ class Doktuz(CrawlSpider):
         item.add_xpath('paciente', "td[8]/div/text()")
         valueImp = row.xpath('td[35]/a/@onclick').get()
         item.add_value('imp', valueImp)
+        item.add_value('imp_downloaded', False)
         item.add_value('cookie', self.cookie)
-        '''if(cod=="PQ4412-000054"):
-          self.parse_pdf_page(response)'''
         yield item.load_item()
     except Exception as e:
-      logger.warning('fail when spider was recovering data from '+ response.url, exc_info=True)
-
+      Logger.error('Doktuz.parse_data: fail when spider was recovering data from '+ response.url, exc_info=True)
+      raise e
   '''def parse_pdf_page(self, response:Response):
     sel = Selector(response)
     self.logger.info("parse_pdf_page")

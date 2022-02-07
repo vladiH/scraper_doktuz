@@ -1,3 +1,4 @@
+from config import Config, Logger
 from src.infrastruture.external.postgresql import PostgresConnection
 from src.infrastruture.repositories.doktuz_imp import *
 class DatabasePipeline:
@@ -11,25 +12,26 @@ class DatabasePipeline:
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            host = crawler.settings.get('HOST'),
-            data_base = crawler.settings.get('DATA_BASE'),
-            user = crawler.settings.get('USER'),
-            password = crawler.settings.get('PASSWORD'),
-            port = crawler.settings.get('PORT')
+            host = Config.HOST,
+            data_base = Config.DATA_BASE,
+            user = Config.USER,
+            password = Config.PASSWORD,
+            port = Config.PORT
         )
     def open_spider(self, spider):
-        self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
-        if self.db.connect():
-            print("Connected to database")
-        else:
-            print("Could not connect to database")
-        self.repository = DoktuzRepositoryImp(self.db)
+        try:
+            self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
+            if self.db.connect():
+                Logger.info("DatabasePipeline: Connected to database")
+                self.repository = DoktuzRepositoryImp(self.db)
+            else:
+                raise Exception("DatabasePipeline: Fail to connect to database")
+        except Exception as e:
+            Logger.critical('DatabasePipeline.open_spider: ', exc_info=True)
+            raise e
 
     def close_spider(self, spider):
         self.db.close()
 
     def process_item(self, item, spider):
         self.repository.save_data(item)
-
-    def is_recorded(self):
-        pass

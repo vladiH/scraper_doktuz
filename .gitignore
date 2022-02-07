@@ -141,3 +141,7 @@ dmypy.json
 cython_debug/
 
 .idea
+
+#chrome driver or .exe files
+*.exe
+chromedriver

@@ -5,8 +5,7 @@
 
 import scrapy
 from scrapy.item import Field
-from scrapy.loader.processors import TakeFirst
-
+from itemloaders.processors import TakeFirst
 class DoktuzItem(scrapy.Item):
     codigo = Field(output_processor=TakeFirst())
     fecha = Field(output_processor=TakeFirst())
@@ -16,4 +15,5 @@ class DoktuzItem(scrapy.Item):
     t_exam = Field(output_processor=TakeFirst())
     paciente = Field(output_processor=TakeFirst())
     imp = Field(output_processor=TakeFirst())
+    imp_downloaded = Field(output_processor=TakeFirst())
     cookie = Field(output_processor=TakeFirst())

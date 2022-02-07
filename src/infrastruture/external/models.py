@@ -1,5 +1,5 @@
 from src.infrastruture.external.base import Base
-from sqlalchemy import  Column, Integer, String, DateTime
+from sqlalchemy import  Column, Integer, String, DateTime, Boolean
 
 class DoktuzDB(Base):
     __tablename__ = "doktuz"
@@ -11,12 +11,13 @@ class DoktuzDB(Base):
     t_exam = Column(String)
     paciente = Column(String)
     imp = Column(String)
+    imp_downloaded = Column(Boolean)
     #Defining One to Many relationships with the relationship function on the Parent Table
     #styles = relationship('ArchitecturalStyles', backref = 'points_of_interest',lazy=True,cascade="all, delete-orphan")
     #architects = relationship('Architects', backref = 'points_of_interest', lazy=True,cascade="all, delete-orphan")
     #categories = relationship('POICategories', backref = 'points_of_interest', lazy=True,cascade="all, delete-orphan")
     
-    def __init__(self, codigo ,fecha ,empresa ,proyecto ,t_exam ,paciente ,imp, subcontrata='sin registro'):
+    def __init__(self, codigo ,fecha ,empresa ,proyecto ,t_exam ,paciente ,imp, imp_downloaded=False, subcontrata='sin registro'):
         self.codigo = codigo
         self.fecha = fecha
         self.empresa = empresa
@@ -25,7 +26,7 @@ class DoktuzDB(Base):
         self.t_exam = t_exam
         self.paciente = paciente
         self.imp = imp
-
+        self.imp_downloaded = imp_downloaded
     def __repr__(self):
         return f'Doktuz({self.empresa}, {self.paciente})'
 

@@ -88,13 +88,4 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-
-#DATABASE CREDENTIALS
-HOST='127.0.0.1'
-DATA_BASE='doktuz'
-USER='postgres'
-PASSWORD='postgresql'
-PORT=5432
-
-#DRIVER_PATH = '/{...}/chromedriver' or '/{...}/chromedriver.exe'
-DRIVER_PATH='K:\WORKS\PYTHON\SIMPLEXGO\scraper_doktuz\src\domain\chromedriver.exe' #linux, windows
+LOG_ENABLED=False
