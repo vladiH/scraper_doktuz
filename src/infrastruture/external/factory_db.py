@@ -17,9 +17,12 @@ class FactoryDataBase(ABC):
         pass
     
     def init_engine(self, url):
-        self.engine = create_engine(url, pool_size = 5)
-        self.session:sessionmaker = sessionmaker(bind=self.engine)
-        Base.metadata.create_all(self.engine, checkfirst=True)
+        try:
+            self.engine = create_engine(url, pool_size = 5)
+            self.session:sessionmaker = sessionmaker(bind=self.engine)
+            Base.metadata.create_all(self.engine, checkfirst=True)
+        except Exception as e:
+            raise e
 
     @abstractmethod
     def execute(self, query):

@@ -1,5 +1,6 @@
 from config import Config, Logger
 from src.infrastruture.external.postgresql import PostgresConnection
+from src.infrastruture.external.mysql import MysqlConnection
 from src.infrastruture.repositories.doktuz_imp import *
 class DatabasePipeline:
     def __init__(self,host, data_base, user, password, port):
@@ -20,12 +21,10 @@ class DatabasePipeline:
         )
     def open_spider(self, spider):
         try:
-            self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
-            if self.db.connect():
-                Logger.info("DatabasePipeline: Connected to database")
-                self.repository = DoktuzRepositoryImp(self.db)
-            else:
-                raise Exception("DatabasePipeline: Fail to connect to database")
+            self.db = MysqlConnection(self.host, self.data_base, self.user, self.password, self.port)
+            self.db.connect()
+            Logger.info("DatabasePipeline: Connected to database")
+            self.repository = DoktuzRepositoryImp(self.db)
         except Exception as e:
             Logger.critical('DatabasePipeline.open_spider: ', exc_info=True)
             raise e

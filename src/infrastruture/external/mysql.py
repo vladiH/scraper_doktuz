@@ -25,10 +25,9 @@ class MysqlConnection(FactoryDataBase):
             url = 'mysql://{user}:{passwd}@{host}:{port}/{db}'.format(
             user=self.user, passwd=self.password, host=self.host, port=self.port, db=self.data_base)
             self.init_engine(url)
-            return True
-        except sqlalchemy.exc.OperationalError:
+        except Exception as e:
             logger.critical("Could not connect to database", exc_info=True)
-            return False
+            raise e
 
     def execute(self, query):
         try:
