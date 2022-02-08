@@ -63,9 +63,11 @@ DOWNLOAD_DELAY = 1
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'src.domain.doktuz.pipelines.DoktuzPipeline': 300,
-    'src.domain.doktuz.selenium_pipeline.DoktuzSeleniumPipeline': 400,
-    'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
+#    'src.domain.doktuz.pipelines.DoktuzPipeline': 300,
+#    'src.domain.doktuz.selenium_pipeline.DoktuzSeleniumPipeline': 400,
+#    'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
+    'src.domain.doktuz.excel_file_pipeline.ExcelFilePipeline': 1,
+    'src.domain.doktuz.save_excel_pipeline.SaveExcelPipeline': 2,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -88,4 +90,5 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-LOG_ENABLED=False
+LOG_ENABLED=True
+FILES_STORE = 'K:/WORKS/PYTHON/SIMPLEXGO/scraper_doktuz/temp'

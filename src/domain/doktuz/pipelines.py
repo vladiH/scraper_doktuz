@@ -7,7 +7,6 @@
 # useful for handling different item types with a single interface
 import re
 from config import Logger
-import logging
 class DoktuzPipeline:
     def process_item(self, item, spider):
         try:

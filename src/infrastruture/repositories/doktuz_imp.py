@@ -1,3 +1,4 @@
+from pandas import DataFrame
 from config import Logger
 from src.infrastruture.external.factory_db import FactoryDataBase
 from src.infrastruture.repositories.doktuz import DoktuzRepository
@@ -25,3 +26,11 @@ class DoktuzRepositoryImp(DoktuzRepository):
         except Exception as e:
             Logger.warning('DoktuzRepositoryImp.there_is_code: ', exc_info=True)
             return False
+
+    def save_excel_data(self, data:DataFrame):
+        try:
+            data.to_sql(name='base_vigilancia_medica', con=self._factoryDataBase.engine(), 
+            if_exists='append', index=False)
+        except Exception as e:
+            Logger.critical('DoktuzRepositoryImp.save_excel_data: ', exc_info=True)
+            raise e

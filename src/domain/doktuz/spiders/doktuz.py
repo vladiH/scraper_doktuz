@@ -1,16 +1,11 @@
 import scrapy
 from config import Config, Logger
 from scrapy.http import Response, Request
-from scrapy.item import Field
-from scrapy.item import Item
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.selector import Selector
-from itemloaders.processors import MapCompose
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from selenium.webdriver import Chrome
 from src.domain.doktuz.items import DoktuzItem
-from scrapy.utils.project import get_project_settings
 class Doktuz(CrawlSpider):
   #name = 'Doktuz'
   # custom_settings = {
