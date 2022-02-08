@@ -3,16 +3,16 @@ from sqlalchemy import  Column, Integer, String, DateTime, Boolean
 
 class DoktuzDB(Base):
     __tablename__ = "doktuz"
-    codigo = Column(String, primary_key=True)
+    codigo = Column(String(20), primary_key=True)
     fecha = Column(DateTime)
-    empresa = Column(String)
-    subcontrata = Column(String)
-    proyecto = Column(String)
-    t_exam = Column(String)
-    paciente = Column(String)
-    certificado = Column(String)
+    empresa = Column(String(255))
+    subcontrata = Column(String(255))
+    proyecto = Column(String(128))
+    t_exam = Column(String(128))
+    paciente = Column(String(255))
+    certificado = Column(String(60))
     certificado_downloaded = Column(Boolean)
-    imp = Column(String)
+    imp = Column(String(60))
     imp_downloaded = Column(Boolean)
     #Defining One to Many relationships with the relationship function on the Parent Table
     #styles = relationship('ArchitecturalStyles', backref = 'points_of_interest',lazy=True,cascade="all, delete-orphan")
