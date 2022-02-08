@@ -268,7 +268,7 @@ class SaveExcelPipeline:
                 #df.to_sql('audit_data', self.engine, if_exists='append', index=False)
             
         except Exception as e:
-            Logger.error('SaveExcelPipeline: fail when spider was processing imp value from item: {} '.format(
+            Logger.error('SaveExcelPipeline: fail when spider was processing data from excel: {} '.format(
                 item
             ), exc_info=True)
             raise e

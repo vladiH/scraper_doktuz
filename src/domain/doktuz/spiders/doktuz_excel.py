@@ -5,6 +5,12 @@ from scrapy.http import Response, Request
 from scrapy.spiders import Spider
 class DoktuzExcel(Spider):
   
+  custom_settings = {
+    'ITEM_PIPELINES' : {
+      'src.domain.doktuz.excel_file_pipeline.ExcelFilePipeline': 1,
+      'src.domain.doktuz.save_excel_pipeline.SaveExcelPipeline': 2,
+    }
+  }
   allowed_domains = ["intranet.doktuz.com"]
 
   def __init__(self, *args, **kwargs):
