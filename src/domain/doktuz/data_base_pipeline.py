@@ -21,7 +21,7 @@ class DatabasePipeline:
         )
     def open_spider(self, spider):
         try:
-            self.db = MysqlConnection(self.host, self.data_base, self.user, self.password, self.port)
+            self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
             self.db.connect()
             Logger.info("DatabasePipeline: Connected to database")
             self.repository = DoktuzRepositoryImp(self.db)

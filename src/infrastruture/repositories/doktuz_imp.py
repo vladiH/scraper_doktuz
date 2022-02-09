@@ -29,7 +29,7 @@ class DoktuzRepositoryImp(DoktuzRepository):
 
     def save_excel_data(self, data:DataFrame):
         try:
-            data.to_sql(name='base_vigilancia_medica', con=self._factoryDataBase.engine(), 
+            data.to_sql(name='base_vigilancia_medica', con=self._factoryDataBase.engine, 
             if_exists='append', index=False)
         except Exception as e:
             Logger.critical('DoktuzRepositoryImp.save_excel_data: ', exc_info=True)

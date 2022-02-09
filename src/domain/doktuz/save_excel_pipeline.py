@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 from config import Config, Logger
 from src.infrastruture.external.mysql import MysqlConnection
+from src.infrastruture.external.postgresql import PostgresConnection
 from src.infrastruture.repositories.doktuz_imp import DoktuzRepositoryImp
 class SaveExcelPipeline:
 
@@ -244,7 +245,7 @@ class SaveExcelPipeline:
         )
     def open_spider(self, spider):
         try:
-            self.db = MysqlConnection(self.host, self.data_base, self.user, self.password, self.port)
+            self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
             self.db.connect()
             Logger.info("SaveExcelPipeline: Connected to database")
             self.repository = DoktuzRepositoryImp(self.db)

@@ -62,13 +62,13 @@ DOWNLOAD_DELAY = 1
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'src.domain.doktuz.pipelines.DoktuzPipeline': 300,
-#    'src.domain.doktuz.selenium_pipeline.DoktuzSeleniumPipeline': 400,
-#    'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
-#    'src.domain.doktuz.excel_file_pipeline.ExcelFilePipeline': 1,
-#   'src.domain.doktuz.save_excel_pipeline.SaveExcelPipeline': 2,
-#}
+ITEM_PIPELINES = {
+    'src.domain.doktuz.pipelines.DoktuzPipeline': 300,
+    'src.domain.doktuz.selenium_pipeline.DoktuzSeleniumPipeline': 400,
+    'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
+    'src.domain.doktuz.excel_file_pipeline.ExcelFilePipeline': 1,
+    'src.domain.doktuz.save_excel_pipeline.SaveExcelPipeline': 2,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
