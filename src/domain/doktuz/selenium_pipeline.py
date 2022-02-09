@@ -79,7 +79,7 @@ class DoktuzSeleniumPipeline:
             #self.create_directory(dir_name)
             self.print_page(file_name)
         except Exception as e:
-            Logger.error('fail when pages is converted as pdf')
+            Logger.error('conversion error')
             raise e   
 
     def wait_for_ajax(self):
@@ -88,7 +88,7 @@ class DoktuzSeleniumPipeline:
             wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
         except Exception as e:
-            Logger.error('fail when waiting for ajax')
+            Logger.error('waiting error, ajax code error')
             raise e
 
     def wait_for_loading_fade(self):
@@ -96,7 +96,7 @@ class DoktuzSeleniumPipeline:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
             WebDriverWait(self.driver, 30).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
         except Exception as e:
-            Logger.error('fail when waiting for loading fade')
+            Logger.error('waiting error, loading fade error')
             raise e
         
     def print_page(self, file_name):
@@ -104,7 +104,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('document.title="{}";'.format(file_name)); 
             self.driver.execute_script("window.print();")
         except Exception as e:
-            Logger.error('fail when printing page')
+            Logger.error('printing PDF error')
             raise e
     
     def create_directory(self, directory):
@@ -112,7 +112,7 @@ class DoktuzSeleniumPipeline:
             if not os.path.exists(directory):
                 os.makedirs(directory)
         except Exception as e:
-            Logger.error('fail when creating the pdf directory', exc_info=True)
+            Logger.error('creation error, creating directory', exc_info=True)
             raise e
 
     def wait_until_images_loaded(self, driver, timeout=30):
@@ -120,7 +120,7 @@ class DoktuzSeleniumPipeline:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
             WebDriverWait(self.driver, 30).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
         except Exception as e:
-            Logger.error('fail when waiting for images to load')
+            Logger.error('waiting image error ')
             raise e
 
     def all_array_elements_are_true(self,driver, elements):
