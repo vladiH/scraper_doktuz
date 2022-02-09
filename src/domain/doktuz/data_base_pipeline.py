@@ -21,7 +21,12 @@ class DatabasePipeline:
         )
     def open_spider(self, spider):
         try:
-            self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
+            if Config.DB_TYPE == 'mysql':
+                self.db = MysqlConnection(self.host, self.data_base, self.user, self.password, self.port)
+            elif Config.DB_TYPE == 'postgresql':
+                self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
+            else:
+                raise Exception('Unknown database type')
             self.db.connect()
             Logger.info("DatabasePipeline: Connected to database")
             self.repository = DoktuzRepositoryImp(self.db)

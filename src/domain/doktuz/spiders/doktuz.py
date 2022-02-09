@@ -1,4 +1,5 @@
 import scrapy
+import datetime
 from config import Config, Logger
 from scrapy.http import Response, Request
 from scrapy.spiders import CrawlSpider, Rule
@@ -67,7 +68,9 @@ class Doktuz(CrawlSpider):
         item = ItemLoader(DoktuzItem(), row)
         #cod = row.xpath("td[2]/div/text()").get()
         item.add_xpath('codigo', "td[2]/div/text()")
-        item.add_xpath('fecha', "td[3]/text()")
+        fecha = row.xpath("td[3]/text()").get()
+        fecha = datetime.datetime.strptime(fecha.replace('-','/'), "%d/%m/%Y").strftime("%Y-%m-%d")
+        item.add_value('fecha', fecha)
         item.add_xpath('empresa', "td[4]/text()")
         item.add_xpath('subcontrata', "td[5]/text()")
         item.add_xpath('proyecto', "td[6]/text()")

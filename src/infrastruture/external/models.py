@@ -1,10 +1,10 @@
 from src.infrastruture.external.base import Base
-from sqlalchemy import  Column, Integer, String, DateTime, Boolean
+from sqlalchemy import  Column, Integer, String, Boolean, Date
 
 class DoktuzDB(Base):
     __tablename__ = "doktuz"
     codigo = Column(String(20), primary_key=True)
-    fecha = Column(DateTime)
+    fecha = Column(Date)
     empresa = Column(String(255))
     subcontrata = Column(String(255))
     proyecto = Column(String(128))

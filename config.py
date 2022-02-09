@@ -36,6 +36,7 @@ class AppConfig:
     DRIVER_PATH:str
     DOKTUZ_USERNAME:str
     DOKTUZ_PASSWORD:str
+    DB_TYPE:str
     """
     Map environment variables to class fields according to these rules:
       - Field won't be parsed unless it has a type annotation

@@ -91,4 +91,4 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 LOG_ENABLED=True
-FILES_STORE = 'K:/WORKS/PYTHON/SIMPLEXGO/scraper_doktuz/temp'
+FILES_STORE = './tmp'
