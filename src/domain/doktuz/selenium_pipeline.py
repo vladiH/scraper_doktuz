@@ -1,5 +1,7 @@
 import os
 import json
+from random import randint
+from time import sleep
 from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
@@ -58,6 +60,7 @@ class DoktuzSeleniumPipeline:
             if(not self.driver.get_cookies()):
                 Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
             else:
+                sleep(randint(2,5))
                 dir_name = self.local_dir+'/'+item['codigo']
                 if(item['imp']!=None):
                     self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
@@ -72,6 +75,7 @@ class DoktuzSeleniumPipeline:
         finally:
             del item['cookie']
             return item
+
     def page_as_pdf(self, link, dir_name, file_name):
         try:
             self.driver.get(link)
@@ -84,7 +88,7 @@ class DoktuzSeleniumPipeline:
             else:
                 self.print_page(file_name)
         except Exception as e:
-            Logger.error('conversion error')
+            Logger.error('conversion error: {}'.format(e))
             raise e   
 
     def wait_for_ajax(self):
@@ -93,15 +97,15 @@ class DoktuzSeleniumPipeline:
             wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
         except Exception as e:
-            Logger.error('waiting error, ajax code error')
+            Logger.error('waiting error, ajax code error {}'.format(e))
             raise e
 
     def wait_for_loading_fade(self):
         try:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
-            WebDriverWait(self.driver, 30).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
+            WebDriverWait(self.driver, 120).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
         except Exception as e:
-            Logger.error('waiting error, loading fade error')
+            Logger.error('waiting error, loading fade error {}'.format(e))
             raise e
         
     def print_page(self, file_name):
@@ -109,7 +113,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('document.title="{}";'.format(file_name)); 
             self.driver.execute_script("window.print();")
         except Exception as e:
-            Logger.error('printing PDF error')
+            Logger.error('printing PDF error {}'.format(e))
             raise e
     def print_headless_page(self, file_name, link):
         try:
@@ -130,7 +134,7 @@ class DoktuzSeleniumPipeline:
             f.write(bytes)
             f.close()
         except Exception as e:
-            Logger.error('printing headless PDF error')
+            Logger.error('printing headless PDF error {}'.format(e))
             raise e
     
     def create_directory(self, directory):
@@ -141,12 +145,12 @@ class DoktuzSeleniumPipeline:
             Logger.error('creation error, creating directory', exc_info=True)
             raise e
 
-    def wait_until_images_loaded(self, driver, timeout=30):
+    def wait_until_images_loaded(self, driver, timeout=120):
         try:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
-            WebDriverWait(self.driver, 30).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
+            WebDriverWait(self.driver, timeout).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
         except Exception as e:
-            Logger.error('waiting image error ')
+            Logger.error('waiting image error  {}'.format(e))
             raise e
 
     def all_array_elements_are_true(self,driver, elements):
