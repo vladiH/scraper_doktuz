@@ -1,5 +1,6 @@
 import os
 import json
+from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
 from textwrap import dedent
@@ -25,7 +26,8 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_experimental_option('prefs', prefs)
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument('--disable-dev-shm-usage')
-            #chrome_options.add_argument('--headless')
+            if Config.HIDDEN:
+                chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
@@ -77,7 +79,10 @@ class DoktuzSeleniumPipeline:
             self.wait_for_loading_fade()
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
-            self.print_page(file_name)
+            if Config.HIDDEN:
+                self.print_page(file_name)
+            else:
+                self.print_headless_page(file_name, link)
         except Exception as e:
             Logger.error('conversion error')
             raise e   
@@ -105,6 +110,27 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script("window.print();")
         except Exception as e:
             Logger.error('printing PDF error')
+            raise e
+    def print_headless_page(self, file_name, link):
+        try:
+            page = self.driver.execute_cdp_cmd( "Page.printToPDF", {"path": link, "format": 'A4'})
+            # Define the Base64 string of the PDF file
+            b64 = page['data']
+
+            # Decode the Base64 string, making sure that it contains only valid characters
+            bytes = b64decode(b64, validate=True)
+
+            # Perform a basic validation to make sure that the result is a valid PDF file
+            # Be aware! The magic number (file signature) is not 100% reliable solution to validate PDF files
+            # Moreover, if you get Base64 from an untrusted source, you must sanitize the PDF contents
+            if bytes[0:4] != b'%PDF':
+                raise ValueError('Missing the PDF file signature')
+            # Write the PDF contents to a local file
+            f = open(self.local_dir+'/'+file_name, 'wb')
+            f.write(bytes)
+            f.close()
+        except Exception as e:
+            Logger.error('printing headless PDF error')
             raise e
     
     def create_directory(self, directory):
