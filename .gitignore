@@ -148,3 +148,4 @@ chromedriver
 pdfs/
 tmp/
 *.pdf
+.vscode/
