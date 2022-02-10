@@ -1,12 +1,8 @@
 
-import sqlalchemy
-import logging
-from src.infrastruture.external.factory_db import FactoryDataBase
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-logger = logging.getLogger(__name__)
-class MysqlConnection(FactoryDataBase):
+from config import Logger
+from src.infrastruture.external.connection import Connection
+class MysqlConnection(Connection):
+    
     def __init__(self, host, data_base, user, password, port):
         """
         Get SQLalchemy engine using credentials.
@@ -18,7 +14,14 @@ class MysqlConnection(FactoryDataBase):
         passwd: Password for the database
         """
         super().__init__(host, data_base, user, password, port)
+        self.connect()
         
+
+    @classmethod
+    def getInstance(cls,host, data_base, user, password, port):
+        if not cls.instance:
+            cls.instance = MysqlConnection(host, data_base, user, password, port)
+        return cls.instance
 
     def connect(self):
         try:
@@ -26,12 +29,5 @@ class MysqlConnection(FactoryDataBase):
             user=self.user, passwd=self.password, host=self.host, port=self.port, db=self.data_base)
             self.init_engine(url)
         except Exception as e:
-            logger.critical("Could not connect to database", exc_info=True)
+            Logger.critical("Could not connect to database", exc_info=True)
             raise e
-
-    def execute(self, query):
-        try:
-            self.engine.execute(query)
-        except sqlalchemy.exc.ProgrammingError as e:
-            logger.critical("Could not execute query: {}".format(e), exc_info=True)
-            raise sqlalchemy.exc.SQLAlchemyError(e)

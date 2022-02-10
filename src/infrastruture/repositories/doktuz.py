@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from src.infrastruture.external.factory_db import FactoryDataBase
+from src.infrastruture.external.connection import Connection
 
 
 class DoktuzRepository(ABC):
-    def __init__(self,factoryDataBase:FactoryDataBase):
-        self._factoryDataBase = factoryDataBase
+    def __init__(self,connection:Connection):
+        self._connection = connection
     
     @abstractmethod
     def save_data(self, data:dict):

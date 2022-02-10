@@ -1,14 +1,14 @@
 from config import Config, Logger
-from src.infrastruture.external.postgresql import PostgresConnection
-from src.infrastruture.external.mysql import MysqlConnection
+from src.infrastruture.external.factory_connection import FactoryConnection
 from src.infrastruture.repositories.doktuz_imp import *
 class DatabasePipeline:
-    def __init__(self,host, data_base, user, password, port):
+    def __init__(self,host, data_base, user, password, port, db_type):
         self.host = host
         self.data_base = data_base
         self.user = user
         self.password = password
         self.port = port
+        self.db_type = db_type
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -17,17 +17,12 @@ class DatabasePipeline:
             data_base = Config.DATA_BASE,
             user = Config.USER,
             password = Config.PASSWORD,
-            port = Config.PORT
+            port = Config.PORT,
+            db_type = Config.DB_TYPE
         )
     def open_spider(self, spider):
         try:
-            if Config.DB_TYPE == 'mysql':
-                self.db = MysqlConnection(self.host, self.data_base, self.user, self.password, self.port)
-            elif Config.DB_TYPE == 'postgresql':
-                self.db = PostgresConnection(self.host, self.data_base, self.user, self.password, self.port)
-            else:
-                raise Exception('Unknown database type')
-            self.db.connect()
+            self.db = FactoryConnection.get_connection(self.host, self.data_base, self.user, self.password, self.port, self.db_type)
             Logger.info("DatabasePipeline: Connected to database")
             self.repository = DoktuzRepositoryImp(self.db)
         except Exception as e:

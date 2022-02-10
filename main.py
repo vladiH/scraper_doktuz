@@ -49,13 +49,13 @@ def main():
     else:
         raise Exception('op parameter is required')
 
-#main()
+main()
 
-if __name__ == "__main__": # EJECUCION POR INTERFAZ GRAFICA
+'''if __name__ == "__main__": # EJECUCION POR INTERFAZ GRAFICA
     Logger.info("La aplicación empezo a las: {}".format(datetime.now()))
-    run_doktuz('01-01-2022', '08-02-2022')
+    #run_doktuz('01-01-2022', '08-02-2022')
     #run_doktuz_excel('25-01-2022', '08-02-2022', 7)
     Logger.info("La aplicación finalizo a las: {}".format(datetime.now()))
-    logging.shutdown()
+    logging.shutdown()'''
 # EJECUCION POR TERMINAL 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
 # scrapy runspider ./src/domain/usecases/get_data.py -o doktuz.csv -t csv 

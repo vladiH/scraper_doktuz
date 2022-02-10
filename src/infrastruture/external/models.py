@@ -10,9 +10,9 @@ class DoktuzDB(Base):
     proyecto = Column(String(128))
     t_exam = Column(String(128))
     paciente = Column(String(255))
-    certificado = Column(String(60))
+    certificado = Column(String(2000))
     certificado_downloaded = Column(Boolean)
-    imp = Column(String(60))
+    imp = Column(String(2000))
     imp_downloaded = Column(Boolean)
     #Defining One to Many relationships with the relationship function on the Parent Table
     #styles = relationship('ArchitecturalStyles', backref = 'points_of_interest',lazy=True,cascade="all, delete-orphan")

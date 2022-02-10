@@ -80,9 +80,9 @@ class DoktuzSeleniumPipeline:
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
             if Config.HIDDEN:
-                self.print_page(file_name)
-            else:
                 self.print_headless_page(file_name, link)
+            else:
+                self.print_page(file_name)
         except Exception as e:
             Logger.error('conversion error')
             raise e   
