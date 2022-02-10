@@ -12,5 +12,5 @@ class DoktuzRepository(ABC):
         pass
 
     @abstractmethod
-    def there_is_code(self, user_code:str):
+    def check_code(self, user_code:str):
         pass

@@ -19,7 +19,7 @@ class DoktuzRepositoryImp(DoktuzRepository):
             session.rollback()
             raise e
     
-    def there_is_code(self, user_code:str):
+    def check_code(self, user_code:str):
         try:
             session = self._connection.session()
             return session.query(DoktuzDB).get(user_code)!=None

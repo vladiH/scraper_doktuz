@@ -1,7 +1,5 @@
 import os
 import json
-from random import randint
-from time import sleep
 from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
@@ -33,12 +31,14 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_argument('--kiosk-printing')
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
+            self.driver.set_page_load_timeout(120)
+            self.driver.set_script_timeout(120)
         except Exception as e:
             Logger.critical("DoktuzSeleniumPipeline.open_spider: fail when spider was opening selenium driver", exc_info=True)
             raise e
 
     def close_spider(self, spider):
-        self.driver.close()
+        self.driver.quit()
         
     @classmethod
     def from_crawler(cls, crawler):
@@ -51,16 +51,15 @@ class DoktuzSeleniumPipeline:
     async def process_item(self, item, spider):
         try:
             Logger.info("Processing item: {}".format(item))
-            if(self.cookie==None):
+            if(self.cookie==None or self.driver.get_cookies()==[]):
                 self.cookie = item['cookie'].split('=')
                 self.driver.get(item['imp'])
                 self.driver.delete_all_cookies()
                 self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
-                'domain': 'intranet.doktuz.com', 'path': '/', 'Expires': 'Session'})
+                'domain': 'intranet.doktuz.com', 'path': '/'})
             if(not self.driver.get_cookies()):
                 Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
             else:
-                sleep(randint(2,5))
                 dir_name = self.local_dir+'/'+item['codigo']
                 if(item['imp']!=None):
                     self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
@@ -106,7 +105,7 @@ class DoktuzSeleniumPipeline:
             WebDriverWait(self.driver, 120).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
         except Exception as e:
             Logger.error('waiting error, loading fade error {}'.format(e))
-            raise e
+            #raise e
         
     def print_page(self, file_name):
         try:
@@ -114,7 +113,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script("window.print();")
         except Exception as e:
             Logger.error('printing PDF error {}'.format(e))
-            raise e
+            #raise e
     def print_headless_page(self, file_name, link):
         try:
             page = self.driver.execute_cdp_cmd( "Page.printToPDF", {"path": link, "format": 'A4'})
@@ -135,7 +134,7 @@ class DoktuzSeleniumPipeline:
             f.close()
         except Exception as e:
             Logger.error('printing headless PDF error {}'.format(e))
-            raise e
+            #raise e
     
     def create_directory(self, directory):
         try:
