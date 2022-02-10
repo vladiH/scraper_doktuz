@@ -1,5 +1,4 @@
 from config import Logger
-from sys import platform
 from scrapy.crawler import CrawlerProcess
 from src.domain.doktuz.spiders.doktuz import Doktuz
 from src.domain.doktuz import settings as my_settings
@@ -17,16 +16,9 @@ def scrapper_doktuz(init_date:str, end_date:str):
         Logger.info("scrapper_doktuz usescase started")
         crawler_settings = Settings()
         crawler_settings.setmodule(my_settings)
-        display = None
-        if(platform == "linux" or platform == "linux2"):
-            from pyvirtualdisplay import Display
-            display = Display(visible=0, size=(800, 600))
-            display.start()  
         process = CrawlerProcess(settings=crawler_settings)
         process.crawl(Doktuz, domain='intranet.doktuz.com', init_date=init_date, end_date=end_date)
         process.start()
-        if display is not None:
-            display.stop()
     except Exception as e:
         Logger.error("scrapper_doktuz usescase failed", exc_info=True)
 # EJECUCION POR TERMINAL
