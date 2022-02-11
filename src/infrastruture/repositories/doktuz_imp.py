@@ -12,7 +12,7 @@ class DoktuzRepositoryImp(DoktuzRepository):
         try:
             doktuz = DoktuzDB(**data)
             session = self._connection.session()
-            session.add(doktuz)
+            session.merge(doktuz, load=True)
             session.commit()
         except Exception as e:
             Logger.critical('DoktuzRepositoryImp.save_data: ', exc_info=True)
@@ -22,10 +22,11 @@ class DoktuzRepositoryImp(DoktuzRepository):
     def check_code(self, user_code:str):
         try:
             session = self._connection.session()
-            return session.query(DoktuzDB).get(user_code)!=None
+            item = session.query(DoktuzDB).get(user_code)
+            return item
         except Exception as e:
-            Logger.warning('DoktuzRepositoryImp.there_is_code: ', exc_info=True)
-            return False
+            Logger.warning('DoktuzRepositoryImp.check_code: ', exc_info=True)
+            raise e
 
     def save_excel_data(self, data:DataFrame):
         try:

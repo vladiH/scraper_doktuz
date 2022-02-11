@@ -33,4 +33,5 @@ class DatabasePipeline:
         self.db.close()
 
     def process_item(self, item, spider):
-        self.repository.save_data(item)
+        if item!=None:
+            self.repository.save_data(item)

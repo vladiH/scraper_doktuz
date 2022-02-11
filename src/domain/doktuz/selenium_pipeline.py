@@ -50,30 +50,30 @@ class DoktuzSeleniumPipeline:
 
     async def process_item(self, item, spider):
         try:
-            Logger.info("Processing item: {}".format(item))
-            if(self.cookie==None or self.driver.get_cookies()==[]):
-                self.cookie = item['cookie'].split('=')
-                self.driver.get(item['imp'])
-                self.driver.delete_all_cookies()
-                self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
-                'domain': 'intranet.doktuz.com', 'path': '/'})
-            if(not self.driver.get_cookies()):
-                Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
-            else:
-                dir_name = self.local_dir+'/'+item['codigo']
-                if(item['imp']!=None):
-                    self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
-                    item['imp_downloaded'] = True
-                    item['imp'] = item['codigo']+"-imp.pdf"
-                if(item['certificado']!=None):
-                    self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
-                    item['certificado_downloaded'] = True
-                    item['certificado'] = item['codigo']+"-certificado.pdf"
+            if item!= None:
+                Logger.info("Processing item: {}".format(item))
+                if(self.cookie==None or self.driver.get_cookies()==[]):
+                    self.cookie = item['cookie'].split('=')
+                    self.driver.get(item['imp'])
+                    self.driver.delete_all_cookies()
+                    self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
+                    'domain': 'intranet.doktuz.com', 'path': '/'})
+                if(not self.driver.get_cookies()):
+                    Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
+                else:
+                    dir_name = self.local_dir+'/'+item['codigo']
+                    if(item['imp']!=None and item['imp_downloaded']==False):
+                        self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
+                        item['imp_downloaded'] = True
+                        item['imp'] = item['codigo']+"-imp.pdf"
+                    if(item['certificado']!=None and item['certificado_downloaded']==False):
+                        self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
+                        item['certificado_downloaded'] = True
+                        item['certificado'] = item['codigo']+"-certificado.pdf"
+                del item['cookie']
+                return item
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}'.format(item), exc_info=True)
-        finally:
-            del item['cookie']
-            return item
 
     def page_as_pdf(self, link, dir_name, file_name):
         try:

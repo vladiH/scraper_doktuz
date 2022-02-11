@@ -1,7 +1,7 @@
 from config import Config, Logger
 from src.infrastruture.external.factory_connection import FactoryConnection
 from src.infrastruture.repositories.doktuz_imp import *
-class CheckDatabasePipeline:
+class CheckDataBasePipeline:
     def __init__(self,host, data_base, user, password, port, db_type):
         self.host = host
         self.data_base = data_base
@@ -33,5 +33,20 @@ class CheckDatabasePipeline:
         self.db.close()
 
     def process_item(self, item, spider):
-        #self.repository.
-        pass
+        store_item = self.repository.check_code(item['codigo'])
+        if store_item != None:
+            if not store_item.certificado_downloaded or not store_item.imp_downloaded:
+                #item['codigo'] = store_item.codigo
+                #item['fecha'] = store_item.fecha
+                #item['empresa'] = store_item.empresa
+                #item['subcontrata'] = store_item.subcontrata
+                #item['proyecto'] = store_item.proyecto
+                #item['t_exam'] = store_item.t_exam
+                #item['paciente'] = store_item.paciente
+                #item['certificado'] = store_item.certificado
+                item['certificado_downloaded'] = store_item.certificado_downloaded
+                #item['imp'] = store_item.imp
+                item['imp_downloaded'] = store_item.imp_downloaded
+                return item
+        else:
+            return item

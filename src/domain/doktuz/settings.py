@@ -63,7 +63,8 @@ DOWNLOAD_DELAY = 1
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'src.domain.doktuz.pipelines.DoktuzPipeline': 300,
+    'src.domain.doktuz.pipelines.DoktuzPipeline': 200,
+    'src.domain.doktuz.check_data_base_pipeline.CheckDataBasePipeline': 300,
     'src.domain.doktuz.selenium_pipeline.DoktuzSeleniumPipeline': 400,
     'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
     'src.domain.doktuz.excel_file_pipeline.ExcelFilePipeline': 1,
