@@ -1,3 +1,4 @@
+from datetime import datetime
 from config import Config, Logger
 from src.infrastruture.external.factory_connection import FactoryConnection
 from src.infrastruture.repositories.doktuz_imp import *
@@ -33,5 +34,6 @@ class DatabasePipeline:
         self.db.close()
 
     def process_item(self, item, spider):
+        print('Item {}, hora: {}'.format(item, datetime.now()))
         if item!=None:
             self.repository.save_data(item)

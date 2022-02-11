@@ -59,3 +59,4 @@ main()
     logging.shutdown()'''
 # EJECUCION POR TERMINAL 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
 # scrapy runspider ./src/domain/usecases/get_data.py -o doktuz.csv -t csv 
+

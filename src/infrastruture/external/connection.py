@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy.pool import NullPool
 from config import Logger
 from abc import ABC, abstractmethod
 from sqlalchemy import create_engine
@@ -20,7 +21,7 @@ class Connection(ABC):
     
     def init_engine(self, url):
         try:
-            self.engine = create_engine(url, pool_size = 20)
+            self.engine = create_engine(url, poolclass=NullPool)
             self.session:sessionmaker = sessionmaker(bind=self.engine)
             Base.metadata.create_all(self.engine, checkfirst=True)
         except Exception as e:
