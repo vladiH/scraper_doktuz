@@ -33,6 +33,7 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_experimental_option('prefs', prefs)
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument('--single-process')
             if Config.HIDDEN:
                 chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
@@ -93,9 +94,7 @@ class DoktuzSeleniumPipeline:
             else:
                 self.print_page(file_name)
         except Exception as e:
-            Logger.error('conversion error: {}'.format(e)) 
-            self.driver.close()
-            Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver has been closed')
+            Logger.error('conversion error: {}'.format(e))  
             self.setup_driver()
             Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
 
