@@ -18,6 +18,13 @@ class DoktuzSeleniumPipeline:
         try:
             self.local_dir = self.local_dir + '/pdfs'
             self.create_directory(self.local_dir)
+            self.setup_driver()
+
+        except Exception as e:
+            Logger.critical("DoktuzSeleniumPipeline.open_spider: fail when spider was opening selenium driver", exc_info=True)
+            raise e
+    def setup_driver(self):
+        try:
             chrome_options = webdriver.ChromeOptions()
             settings = {"recentDestinations": [{"id": "Save as PDF", "origin": "local", "account": ""}],
             "selectedDestinationId": "Save as PDF", "version": 2}
@@ -34,7 +41,6 @@ class DoktuzSeleniumPipeline:
             self.driver.set_page_load_timeout(120)
             self.driver.set_script_timeout(120)
         except Exception as e:
-            Logger.critical("DoktuzSeleniumPipeline.open_spider: fail when spider was opening selenium driver", exc_info=True)
             raise e
 
     def close_spider(self, spider):
@@ -87,11 +93,11 @@ class DoktuzSeleniumPipeline:
             else:
                 self.print_page(file_name)
         except Exception as e:
-            Logger.error('conversion error: {}'.format(e))
-            if self.driver.session_id==None:
-                Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: session id is None')
-                self.driver.start_session()
-            self.driver.refresh()
+            Logger.error('conversion error: {}'.format(e)) 
+            self.driver.close()
+            Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver has been closed')
+            self.setup_driver()
+            Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
 
     def wait_for_ajax(self):
         wait = WebDriverWait(self.driver, 15)
