@@ -35,7 +35,7 @@ class CheckDataBasePipeline:
     def process_item(self, item, spider):
         store_item = self.repository.check_code(item['codigo'])
         if store_item != None:
-            if not store_item.certificado_downloaded or not store_item.imp_downloaded:
+            if not store_item.certificado_downloaded:
                 #item['codigo'] = store_item.codigo
                 #item['fecha'] = store_item.fecha
                 #item['empresa'] = store_item.empresa
@@ -43,10 +43,13 @@ class CheckDataBasePipeline:
                 #item['proyecto'] = store_item.proyecto
                 #item['t_exam'] = store_item.t_exam
                 #item['paciente'] = store_item.paciente
-                #item['certificado'] = store_item.certificado
+                item['certificado'] = store_item.certificado
                 item['certificado_downloaded'] = store_item.certificado_downloaded
-                #item['imp'] = store_item.imp
+                
+            if not store_item.imp_downloaded:
                 item['imp_downloaded'] = store_item.imp_downloaded
-                return item
+                item['imp'] = store_item.imp
+
+            return item
         else:
             return item

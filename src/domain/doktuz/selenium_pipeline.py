@@ -88,7 +88,10 @@ class DoktuzSeleniumPipeline:
                 self.print_page(file_name)
         except Exception as e:
             Logger.error('conversion error: {}'.format(e))
-            raise e   
+            if self.driver.session_id==None:
+                Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: session id is None')
+                self.driver.start_session()
+            self.driver.refresh()
 
     def wait_for_ajax(self):
         wait = WebDriverWait(self.driver, 15)

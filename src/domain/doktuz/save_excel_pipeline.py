@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from datetime import datetime
 from config import Config, Logger
@@ -263,8 +264,8 @@ class SaveExcelPipeline:
                 df.reset_index()
                 df.columns = self.columns
                 df.insert(0, 'date_sys', datetime.now())
-                #df.to_excel(os.path.basename(file))
                 self.repository.save_excel_data(df)
+                os.remove(file)
                 #df.to_sql('audit_data', self.engine, if_exists='append', index=False)
             
         except Exception as e:
