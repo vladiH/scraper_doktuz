@@ -61,7 +61,7 @@ class DoktuzSeleniumPipeline:
                 Logger.info("Processing item: {}".format(item))
                 if(self.cookie==None or self.driver.get_cookies()==[]):
                     self.cookie = item['cookie'].split('=')
-                    self.driver.get(item['imp'])
+                    self.driver.get('https://intranet.doktuz.com/Resultados/Empresa/resultados.php')
                     self.driver.delete_all_cookies()
                     self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
                     'domain': 'intranet.doktuz.com', 'path': '/'})
@@ -69,18 +69,20 @@ class DoktuzSeleniumPipeline:
                     Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
                 else:
                     dir_name = self.local_dir+'/'+item['codigo']
-                    if(item['imp']!=None and item['imp_downloaded']==False):
+                    if('imp' in item and item['imp_downloaded']==False):
                         self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                         item['imp_downloaded'] = True
                         item['imp'] = item['codigo']+"-imp.pdf"
-                    if(item['certificado']!=None and item['certificado_downloaded']==False):
+                    if('certificado' in item and item['certificado_downloaded']==False):
                         self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
                         item['certificado_downloaded'] = True
                         item['certificado'] = item['codigo']+"-certificado.pdf"
                 del item['cookie']
                 return item
         except Exception as e:
-            Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}'.format(item), exc_info=True)
+            Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
+            self.setup_driver()
+            Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
 
     def page_as_pdf(self, link, dir_name, file_name):
         try:
@@ -95,8 +97,7 @@ class DoktuzSeleniumPipeline:
                 self.print_page(file_name)
         except Exception as e:
             Logger.error('conversion error: {}'.format(e))  
-            self.setup_driver()
-            Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
+           
 
     def wait_for_ajax(self):
         wait = WebDriverWait(self.driver, 15)

@@ -10,11 +10,11 @@ from config import Logger
 class DoktuzPipeline:
     def process_item(self, item, spider):
         try:
-            if(item['imp']!=None):
+            if('imp' in item):
                 valueImp = re.search(r'\((.*?)\)',item['imp']).group(1).split(',')
                 valueImp = "https://intranet.doktuz.com/HistoriasClinicas/PaquetesMedicos/imprimirtodos.php?idcomprobante="+valueImp[0]+"&logo=1&"+"firma="+valueImp[1]+"&consen="+valueImp[2]
                 item['imp'] = valueImp
-            if(item['certificado']!=None):
+            if('certificado' in item):
                 valueImp = item['certificado'].split('/')[2:]
                 valueImp.insert(0,'https://intranet.doktuz.com')
                 valueImp = '/'.join(valueImp)

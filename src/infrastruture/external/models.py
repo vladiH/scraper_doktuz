@@ -20,7 +20,7 @@ class DoktuzDB(Base):
     #categories = relationship('POICategories', backref = 'points_of_interest', lazy=True,cascade="all, delete-orphan")
     
     def __init__(self, codigo ,fecha ,empresa ,proyecto ,t_exam ,paciente, 
-    certificado, imp, certificado_downloaded=False, imp_downloaded=False, subcontrata='-'):
+    certificado=None, imp=None, certificado_downloaded=False, imp_downloaded=False, subcontrata='-'):
         self.codigo = codigo
         self.fecha = fecha
         self.empresa = empresa
