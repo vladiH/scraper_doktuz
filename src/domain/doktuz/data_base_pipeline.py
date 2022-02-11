@@ -34,6 +34,5 @@ class DatabasePipeline:
         self.db.close()
 
     def process_item(self, item, spider):
-        print('Item {}, hora: {}'.format(item, datetime.now()))
         if item!=None:
             self.repository.save_data(item)

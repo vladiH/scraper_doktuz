@@ -34,7 +34,6 @@ class CheckDataBasePipeline:
         self.db.close()
 
     def process_item(self, item, spider):
-        print('Item {}, hora: {}'.format(item, datetime.now()))
         store_item = self.repository.check_code(item['codigo'])
         if store_item != None and (not store_item.certificado_downloaded or not store_item.imp_downloaded):
             if store_item.certificado!=None or store_item.certificado_downloaded:
