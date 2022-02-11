@@ -20,7 +20,7 @@ class Connection(ABC):
     
     def init_engine(self, url):
         try:
-            self.engine = create_engine(url, pool_size = 5)
+            self.engine = create_engine(url, pool_size = 20)
             self.session:sessionmaker = sessionmaker(bind=self.engine)
             Base.metadata.create_all(self.engine, checkfirst=True)
         except Exception as e:
