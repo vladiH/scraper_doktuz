@@ -16,7 +16,7 @@ class DoktuzSeleniumPipeline:
 
     def open_spider(self, spider):
         try:
-            self.local_dir = self.local_dir + '/pdfs'
+            self.local_dir = self.local_dir
             self.create_directory(self.local_dir)
             self.setup_driver()
 
@@ -52,7 +52,7 @@ class DoktuzSeleniumPipeline:
         dp = Config.DRIVER_PATH
         return cls(
             driver_path=dp,
-            local_dir = os.getcwd()
+            local_dir = Config.PDF_OUTPUT_PATH
         )
 
     async def process_item(self, item, spider):

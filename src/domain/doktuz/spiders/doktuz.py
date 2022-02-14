@@ -55,6 +55,9 @@ class Doktuz(CrawlSpider):
                                callback=self.parse_resultados)]
     except Exception as e:
       Logger.critical('Doktuz.start_requests: fail when spider was starting', exc_info=True)
+  
+  def parse_start_url(self, response, **kwargs):
+    return self.parse_data(response)
                                
   def parse_resultados(self, response:Response):
     Logger.info('Doktuz.parse_resultados: init_date {}, end_date {} '.format(self.init_date, self.end_date))
