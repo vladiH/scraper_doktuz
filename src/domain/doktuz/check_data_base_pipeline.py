@@ -1,5 +1,3 @@
-import random
-import time
 from config import Config, Logger
 from src.infrastruture.external.factory_connection import FactoryConnection
 from src.infrastruture.repositories.doktuz_imp import *
@@ -35,7 +33,6 @@ class CheckDataBasePipeline:
         self.db.close()
 
     def process_item(self, item, spider):
-        time.sleep(random.randint(1,3))
         store_item = self.repository.check_code(item['codigo'])
         if store_item != None and (not store_item.certificado_downloaded or not store_item.imp_downloaded):
             if store_item.certificado!=None or store_item.certificado_downloaded:

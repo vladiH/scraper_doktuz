@@ -20,6 +20,7 @@ class DoktuzRepositoryImp(DoktuzRepository):
             raise e
     
     def check_code(self, user_code:str):
+        session = None
         try:
             session = self._connection.session()
             item = session.query(DoktuzDB).get(user_code)
@@ -27,6 +28,9 @@ class DoktuzRepositoryImp(DoktuzRepository):
         except Exception as e:
             Logger.warning('DoktuzRepositoryImp.check_code: ', exc_info=True)
             raise e
+        finally:
+            if session is not None:
+                session.close()
 
     def save_excel_data(self, data:DataFrame):
         try:
