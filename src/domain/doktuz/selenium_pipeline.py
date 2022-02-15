@@ -77,12 +77,13 @@ class DoktuzSeleniumPipeline:
                         self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
                         item['certificado_downloaded'] = True
                         item['certificado'] = item['codigo']+"-certificado.pdf"
-                del item['cookie']
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
             self.setup_driver()
             Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
         finally:
+            if item!=None:
+                del item['cookie']
             return item
 
     def page_as_pdf(self, link, dir_name, file_name):
