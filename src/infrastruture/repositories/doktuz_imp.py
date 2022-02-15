@@ -18,6 +18,9 @@ class DoktuzRepositoryImp(DoktuzRepository):
             Logger.critical('DoktuzRepositoryImp.save_data: ', exc_info=True)
             session.rollback()
             raise e
+        finally:
+            if session is not None:
+                session.close()
     
     def check_code(self, user_code:str):
         session = None

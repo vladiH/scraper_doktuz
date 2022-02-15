@@ -57,6 +57,6 @@ main()
     #run_doktuz_excel('25-01-2022', '08-02-2022', 7)
     Logger.info("La aplicación finalizo a las: {}".format(datetime.now()))
     logging.shutdown()'''
-# EJECUCION POR TERMINAL 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
+# EJECUCION POR TERMINAL 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
 # scrapy runspider ./src/domain/usecases/get_data.py -o doktuz.csv -t csv 
 
