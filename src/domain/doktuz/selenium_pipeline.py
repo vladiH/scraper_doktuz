@@ -41,9 +41,9 @@ class DoktuzSeleniumPipeline:
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             self.session_id = self.driver.session_id
-            self.driver.set_page_load_timeout(240)
-            self.driver.set_script_timeout(240)
-            self.driver.implicitly_wait(240)
+            self.driver.set_page_load_timeout(350)
+            self.driver.set_script_timeout(360)
+            self.driver.implicitly_wait(300)
         except Exception as e:
             raise e
 
@@ -112,7 +112,7 @@ class DoktuzSeleniumPipeline:
            
 
     def wait_for_ajax(self):
-        wait = WebDriverWait(self.driver, 240)
+        wait = WebDriverWait(self.driver, 480)
         try:
             wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
@@ -123,7 +123,7 @@ class DoktuzSeleniumPipeline:
     def wait_for_loading_fade(self):
         try:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
-            WebDriverWait(self.driver, 240).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
+            WebDriverWait(self.driver, 480).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
         except Exception as e:
             Logger.error('waiting error, loading fade error {}'.format(e))
             #raise e
@@ -168,7 +168,7 @@ class DoktuzSeleniumPipeline:
             Logger.error('creation error, creating directory', exc_info=True)
             raise e
 
-    def wait_until_images_loaded(self, driver, timeout=240):
+    def wait_until_images_loaded(self, driver, timeout=480):
         try:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
             WebDriverWait(self.driver, timeout).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
