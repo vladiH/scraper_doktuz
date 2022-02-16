@@ -43,6 +43,7 @@ class DoktuzSeleniumPipeline:
             self.session_id = self.driver.session_id
             self.driver.set_page_load_timeout(240)
             self.driver.set_script_timeout(240)
+            self.driver.implicitly_wait(240)
         except Exception as e:
             raise e
 
