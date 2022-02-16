@@ -33,12 +33,12 @@ class DoktuzSeleniumPipeline:
             'savefile.default_directory': self.local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
             if Config.HIDDEN:
-                chrome_options.add_argument("--disable-gpu")
-                #chrome_options.add_argument('--single-process') # this option is not working for windows
+                #chrome_options.add_argument("--disable-gpu")
+                chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
-                chrome_options.add_argument('--window-size=1920,1040')
+                #chrome_options.add_argument('--window-size=1920,1040')
                 chrome_options.add_argument('--no-sandbox')
-                chrome_options.add_argument('--disable-dev-shm-usage')
+                #chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--kiosk-printing')
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
