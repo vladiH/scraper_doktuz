@@ -35,7 +35,7 @@ class CheckDataBasePipeline:
     def process_item(self, item, spider):
         store_item = self.repository.check_code(item['codigo'])
         if store_item != None and (not store_item.certificado_downloaded or not store_item.imp_downloaded):
-            if store_item.certificado!=None or store_item.certificado_downloaded:
+            if store_item.certificado_downloaded:
                 #item['codigo'] = store_item.codigo
                 #item['fecha'] = sthore_item.fecha
                 #item['empresa'] = store_item.empresa
@@ -46,7 +46,7 @@ class CheckDataBasePipeline:
                 item['certificado'] = store_item.certificado
                 item['certificado_downloaded'] = store_item.certificado_downloaded
 
-            if store_item.imp!=None or store_item.imp_downloaded:
+            if store_item.imp_downloaded:
                 item['imp_downloaded'] = store_item.imp_downloaded
                 item['imp'] = store_item.imp
 
