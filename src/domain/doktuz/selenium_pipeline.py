@@ -123,7 +123,7 @@ class DoktuzSeleniumPipeline:
             wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
         except Exception as e:
-            Logger.error('waiting error, ajax code error {}'.format(e))
+            Logger.error('waiting error, ajax code error {}'.format(e), exc_info=True)
             raise e
 
     def wait_for_loading_fade(self):
@@ -179,7 +179,7 @@ class DoktuzSeleniumPipeline:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
             WebDriverWait(self.driver, timeout).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
         except Exception as e:
-            Logger.error('waiting image error  {}'.format(e))
+            Logger.error('waiting image error  {}'.format(e), exc_info=True)
             raise e
 
     def all_array_elements_are_true(self,driver, elements):
