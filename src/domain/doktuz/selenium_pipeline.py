@@ -34,7 +34,7 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_experimental_option('prefs', prefs)
             if Config.HIDDEN:
                 chrome_options.add_argument("--disable-gpu")
-                chrome_options.add_argument('--single-process') # this option is not working for windows
+                #chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
