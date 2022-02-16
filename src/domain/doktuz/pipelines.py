@@ -12,7 +12,7 @@ class DoktuzPipeline:
         try:
             if('imp' in item):
                 valueImp = re.search(r'\((.*?)\)',item['imp']).group(1).split(',')
-                valueImp = "https://intranet.doktuz.com/HistoriasClinicas/PaquetesMedicos/imprimirtodos.php?idcomprobante="+valueImp[0]+"&logo=1&"+"firma="+valueImp[1]+"&consen="+valueImp[2]
+                valueImp = "https://intranet.doktuz.com/HistoriasClinicas/PaquetesMedicos/imprimirtodos.php?idcomprobante="+valueImp[0]+"&logo=1&"+"firma="+valueImp[1].replace("'","").strip()+"&consen="+valueImp[2].replace("'","").strip()
                 item['imp'] = valueImp
             if('certificado' in item):
                 valueImp = item['certificado'].split('/')[2:]

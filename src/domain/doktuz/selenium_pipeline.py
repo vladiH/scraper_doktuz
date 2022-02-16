@@ -13,6 +13,7 @@ class DoktuzSeleniumPipeline:
         self.driver_path = driver_path
         self.local_dir = local_dir
         self.cookie = None
+        self.session_id = None
 
     def open_spider(self, spider):
         try:
@@ -31,16 +32,17 @@ class DoktuzSeleniumPipeline:
             prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings),
             'savefile.default_directory': self.local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument('--single-process')
             if Config.HIDDEN:
+                chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
+                chrome_options.add_argument('--no-sandbox')
+                chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--kiosk-printing')
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
-            self.driver.set_page_load_timeout(120)
-            self.driver.set_script_timeout(120)
+            self.session_id = self.driver.session_id
+            self.driver.set_page_load_timeout(30)
+            self.driver.set_script_timeout(30)
         except Exception as e:
             raise e
 
@@ -73,10 +75,12 @@ class DoktuzSeleniumPipeline:
                         self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                         item['imp_downloaded'] = True
                         item['imp'] = item['codigo']+"-imp.pdf"
+                    #self.driver.back()
                     if('certificado' in item and item['certificado_downloaded']==False):
                         self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
                         item['certificado_downloaded'] = True
                         item['certificado'] = item['codigo']+"-certificado.pdf"
+                    #self.driver.back()
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
             self.setup_driver()
@@ -88,6 +92,8 @@ class DoktuzSeleniumPipeline:
 
     def page_as_pdf(self, link, dir_name, file_name):
         try:
+            self.driver.execute_script('''window.open();''')
+            self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
             #self.wait_for_ajax()
             self.wait_for_loading_fade()
@@ -98,7 +104,10 @@ class DoktuzSeleniumPipeline:
             else:
                 self.print_page(file_name)
         except Exception as e:
-            Logger.error('conversion error: {}'.format(e))  
+            Logger.error('conversion error: {}'.format(e))
+        finally:
+            self.driver.close()
+            self.driver.switch_to.window(self.driver.window_handles[-1])  
            
 
     def wait_for_ajax(self):
@@ -127,7 +136,10 @@ class DoktuzSeleniumPipeline:
             #raise e
     def print_headless_page(self, file_name, link):
         try:
-            page = self.driver.execute_cdp_cmd( "Page.printToPDF", {"path": link, "format": 'A4'})
+            page = self.driver.execute_cdp_cmd( "Page.printToPDF", {'path': link, 
+                                                                    'format': 'A4', 'landscape': False,
+                                                                    'paperWidth': 8.27,
+                                                                    'paperHeight': 11.69})
             # Define the Base64 string of the PDF file
             b64 = page['data']
 
