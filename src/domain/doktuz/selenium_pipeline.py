@@ -36,15 +36,16 @@ class DoktuzSeleniumPipeline:
                 chrome_options.add_argument("--disable-gpu")
                 #chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
+                chrome_options.add_argument('--window-size=1920,1040')
                 chrome_options.add_argument('--no-sandbox')
                 chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--kiosk-printing')
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             self.session_id = self.driver.session_id
-            self.driver.set_page_load_timeout(350)
-            self.driver.set_script_timeout(360)
-            self.driver.implicitly_wait(300)
+            self.driver.set_page_load_timeout(240)
+            self.driver.set_script_timeout(240)
+            self.driver.implicitly_wait(240)
         except Exception as e:
             raise e
 
@@ -107,13 +108,14 @@ class DoktuzSeleniumPipeline:
                 self.print_page(file_name)
         except Exception as e:
             Logger.error('conversion error: {}'.format(e))
+            raise e
         finally:
             self.driver.close()
             self.driver.switch_to.window(self.driver.window_handles[-1])  
            
 
     def wait_for_ajax(self):
-        wait = WebDriverWait(self.driver, 480)
+        wait = WebDriverWait(self.driver, 240)
         try:
             wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
@@ -124,10 +126,10 @@ class DoktuzSeleniumPipeline:
     def wait_for_loading_fade(self):
         try:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
-            WebDriverWait(self.driver, 480).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
+            WebDriverWait(self.driver, 240).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
         except Exception as e:
             Logger.error('waiting error, loading fade error {}'.format(e))
-            #raise e
+            raise e
         
     def print_page(self, file_name):
         try:
@@ -135,7 +137,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script("window.print();")
         except Exception as e:
             Logger.error('printing PDF error {}'.format(e))
-            #raise e
+            raise e
     def print_headless_page(self, file_name, link):
         try:
             page = self.driver.execute_cdp_cmd( "Page.printToPDF", {'path': link, 
@@ -159,7 +161,7 @@ class DoktuzSeleniumPipeline:
             f.close()
         except Exception as e:
             Logger.error('printing headless PDF error {}'.format(e))
-            #raise e
+            raise e
     
     def create_directory(self, directory):
         try:
@@ -169,7 +171,7 @@ class DoktuzSeleniumPipeline:
             Logger.error('creation error, creating directory', exc_info=True)
             raise e
 
-    def wait_until_images_loaded(self, driver, timeout=480):
+    def wait_until_images_loaded(self, driver, timeout=240):
         try:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
             WebDriverWait(self.driver, timeout).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
