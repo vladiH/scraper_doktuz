@@ -33,6 +33,7 @@ class DoktuzSeleniumPipeline:
             'savefile.default_directory': self.local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
             if Config.HIDDEN:
+                chrome_options.addArguments("--disable-gpu")
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
                 chrome_options.add_argument('--no-sandbox')
