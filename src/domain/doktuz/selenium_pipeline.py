@@ -101,7 +101,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
-            #self.wait_for_ajax()
+            self.wait_for_ajax()
             self.wait_for_loading_fade()
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
@@ -124,7 +124,6 @@ class DoktuzSeleniumPipeline:
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
         except Exception as e:
             Logger.error('waiting error, ajax code error {}'.format(e), exc_info=True)
-            raise e
 
     def wait_for_loading_fade(self):
         try:
@@ -183,8 +182,12 @@ class DoktuzSeleniumPipeline:
             raise e
 
     def all_array_elements_are_true(self,driver, elements):
-        array = [driver.execute_script("return arguments[0].complete", img) for img in elements]
-        for element in array:
-            if not element:
-                return False
-        return True
+        try:
+            array = [driver.execute_script("return arguments[0].complete", img) for img in elements]
+            for element in array:
+                if not element:
+                    return False
+            return True
+        except Exception as e:
+            Logger.error('all_array_elements_are_true:  {}'.format(e), exc_info=True)
+            raise e
