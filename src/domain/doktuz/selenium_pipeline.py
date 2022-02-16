@@ -34,11 +34,14 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_experimental_option('prefs', prefs)
             if Config.HIDDEN:
                 #chrome_options.add_argument("--disable-gpu")
+                chrome_options.add_argument("--disable-infobars")
+                chrome_options.add_argument("--disable-extensions")
+                chrome_options.add_argument("--disable-popup-blocking")
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
                 #chrome_options.add_argument('--window-size=1920,1040')
                 chrome_options.add_argument('--no-sandbox')
-                #chrome_options.add_argument('--disable-dev-shm-usage')
+                chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--kiosk-printing')
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
@@ -160,7 +163,7 @@ class DoktuzSeleniumPipeline:
             f.write(bytes)
             f.close()
         except Exception as e:
-            Logger.error('printing headless PDF error {}'.format(e))
+            Logger.error('printing headless PDF error {}'.format(e), exc_info=True)
             raise e
     
     def create_directory(self, directory):
