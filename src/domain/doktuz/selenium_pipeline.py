@@ -41,8 +41,8 @@ class DoktuzSeleniumPipeline:
             
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             self.session_id = self.driver.session_id
-            self.driver.set_page_load_timeout(30)
-            self.driver.set_script_timeout(30)
+            self.driver.set_page_load_timeout(120)
+            self.driver.set_script_timeout(120)
         except Exception as e:
             raise e
 
