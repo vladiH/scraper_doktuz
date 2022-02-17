@@ -98,7 +98,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
-            self.wait_for_ajax()
+            #self.wait_for_ajax()
             self.wait_for_loading_fade()
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
