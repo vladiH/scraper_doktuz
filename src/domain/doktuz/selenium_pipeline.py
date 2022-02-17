@@ -103,7 +103,7 @@ class DoktuzSeleniumPipeline:
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
             if Config.HIDDEN:
-                self.create_pdf(self.driver, file_name)
+                #self.create_pdf(self.driver, file_name)
                 self.print_headless_page(file_name, link)
             else:
                 self.print_page(file_name)
@@ -126,7 +126,7 @@ class DoktuzSeleniumPipeline:
     def wait_for_loading_fade(self):
         try:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
-            print(self.driver.__sizeof__())
+            #print(self.driver.__sizeof__())
             WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
 
         except Exception as e:
@@ -140,6 +140,7 @@ class DoktuzSeleniumPipeline:
         except Exception as e:
             Logger.error('printing PDF error {}'.format(e))
             raise e
+
     def print_headless_page(self, file_name, link):
         try:
             page = self.driver.execute_cdp_cmd( "Page.printToPDF", {'path': link, 
@@ -193,25 +194,35 @@ class DoktuzSeleniumPipeline:
             raise e
     
     def send_devtools(self, driver, command, params=None):
-        if params is None:
-            params = {}
-        resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
-        url = driver.command_executor._url + resource
-        body = json.dumps({"cmd": command, "params": params})
-        resp = driver.command_executor._request("POST", url, body)
-        return resp.get("value")
+        try:
+            if params is None:
+                params = {}
+                resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
+                url = driver.command_executor._url + resource
+                body = json.dumps({"cmd": command, "params": params})
+                resp = driver.command_executor._request("POST", url, body)
+                return resp.get("value")
+        except Exception as e:
+            raise e
 
 
     def create_pdf(self, driver, file_name):
-        command = "Page.printToPDF"
-        params = {'paper_width': '8.27', 'paper_height': '11.69'}
-        result = self.send_devtools(driver, command,  params)
-        self.save_pdf(result, file_name)
-        return
+        try:
+            command = "Page.printToPDF"
+            params = {'paper_width': '8.27', 'paper_height': '11.69'}
+            result = self.send_devtools(driver, command,  params)
+            self.save_pdf(result, file_name)
+            return
+        except Exception as e:
+            Logger.error('send_devtools:  {}'.format(e), exc_info=True)
+            raise e
 
 
     def save_pdf(self, data, file_name):
-        name = self.local_dir+'/'+file_name
-        with open(name, 'wb') as file:
-            file.write(b64decode(data['data']))
-        print('PDF created')
+        try:
+            name = self.local_dir+'/'+file_name
+            with open(name, 'wb') as file:
+                file.write(b64decode(data['data']))
+            #print('PDF created')
+        except Exception as e:
+            raise e
