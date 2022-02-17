@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
@@ -84,6 +85,7 @@ class DoktuzSeleniumPipeline:
                         self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                         item['imp_downloaded'] = True
                         item['imp'] = item['codigo']+"-imp.pdf"
+                    item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
             self.setup_driver()
