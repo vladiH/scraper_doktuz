@@ -85,13 +85,13 @@ class DoktuzSeleniumPipeline:
                         self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                         item['imp_downloaded'] = True
                         item['imp'] = item['codigo']+"-imp.pdf"
-                    item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
             self.setup_driver()
             Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
         finally:
             if item!=None:
+                item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
                 del item['cookie']
             return item
 
