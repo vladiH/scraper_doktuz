@@ -9,6 +9,7 @@ from itemloaders.processors import TakeFirst
 class DoktuzItem(scrapy.Item):
     codigo = Field(output_processor=TakeFirst())
     fecha = Field(output_processor=TakeFirst())
+    fecha_downloaded = Field(output_processor=TakeFirst())
     empresa = Field(output_processor=TakeFirst())
     subcontrata = Field(output_processor=TakeFirst())
     proyecto = Field(output_processor=TakeFirst())

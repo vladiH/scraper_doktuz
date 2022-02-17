@@ -75,6 +75,7 @@ class Doktuz(CrawlSpider):
         fecha = row.xpath("td[3]/text()").get()
         fecha = datetime.datetime.strptime(fecha.replace('-','/'), "%d/%m/%Y").strftime("%Y-%m-%d")
         item.add_value('fecha', fecha)
+        item.add_value('fecha_downloaded', datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
         item.add_xpath('empresa', "td[4]/text()")
         item.add_xpath('subcontrata', "td[5]/text()")
         item.add_xpath('proyecto', "td[6]/text()")
