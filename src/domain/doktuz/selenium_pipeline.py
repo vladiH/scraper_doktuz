@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
+
 class DoktuzSeleniumPipeline:
     def __init__(self,driver_path, local_dir):
         self.driver_path = driver_path
@@ -32,23 +33,21 @@ class DoktuzSeleniumPipeline:
             prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings),
             'savefile.default_directory': self.local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
+            chrome_options.add_argument("--disable-infobars")
+            chrome_options.add_argument("--disable-extensions")
+            chrome_options.add_argument("--disable-popup-blocking")
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument("--disable-extensions")
             if Config.HIDDEN:
                 #chrome_options.add_argument("--disable-gpu")
-                chrome_options.add_argument("--disable-infobars")
-                chrome_options.add_argument("--disable-extensions")
-                chrome_options.add_argument("--disable-popup-blocking")
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
-                #chrome_options.add_argument('--window-size=1920,1040')
-                chrome_options.add_argument('--no-sandbox')
-                chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--kiosk-printing')
-            
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
             self.session_id = self.driver.session_id
-            self.driver.set_page_load_timeout(600)
-            self.driver.set_script_timeout(240)
-            self.driver.implicitly_wait(240)
+            self.driver.set_page_load_timeout(60)
+            self.driver.set_script_timeout(60)
         except Exception as e:
             raise e
 
@@ -77,16 +76,14 @@ class DoktuzSeleniumPipeline:
                     Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
                 else:
                     dir_name = self.local_dir+'/'+item['codigo']
-                    if('imp' in item and item['imp_downloaded']==False):
-                        self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
-                        item['imp_downloaded'] = True
-                        item['imp'] = item['codigo']+"-imp.pdf"
-                    #self.driver.back()
                     if('certificado' in item and item['certificado_downloaded']==False):
                         self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
                         item['certificado_downloaded'] = True
                         item['certificado'] = item['codigo']+"-certificado.pdf"
-                    #self.driver.back()
+                    if('imp' in item and item['imp_downloaded']==False):
+                        self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
+                        item['imp_downloaded'] = True
+                        item['imp'] = item['codigo']+"-imp.pdf"
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
             self.setup_driver()
@@ -106,6 +103,7 @@ class DoktuzSeleniumPipeline:
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
             if Config.HIDDEN:
+                self.create_pdf(self.driver, file_name)
                 self.print_headless_page(file_name, link)
             else:
                 self.print_page(file_name)
@@ -118,7 +116,7 @@ class DoktuzSeleniumPipeline:
            
 
     def wait_for_ajax(self):
-        wait = WebDriverWait(self.driver, 240)
+        wait = WebDriverWait(self.driver, 60)
         try:
             wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
             wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
@@ -128,7 +126,9 @@ class DoktuzSeleniumPipeline:
     def wait_for_loading_fade(self):
         try:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
-            WebDriverWait(self.driver, 240).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
+            print(self.driver.__sizeof__())
+            WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
+
         except Exception as e:
             Logger.error('waiting error, loading fade error {}'.format(e))
             raise e
@@ -173,7 +173,7 @@ class DoktuzSeleniumPipeline:
             Logger.error('creation error, creating directory', exc_info=True)
             raise e
 
-    def wait_until_images_loaded(self, driver, timeout=240):
+    def wait_until_images_loaded(self, driver, timeout=60):
         try:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
             WebDriverWait(self.driver, timeout).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
@@ -191,3 +191,27 @@ class DoktuzSeleniumPipeline:
         except Exception as e:
             Logger.error('all_array_elements_are_true:  {}'.format(e), exc_info=True)
             raise e
+    
+    def send_devtools(self, driver, command, params=None):
+        if params is None:
+            params = {}
+        resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
+        url = driver.command_executor._url + resource
+        body = json.dumps({"cmd": command, "params": params})
+        resp = driver.command_executor._request("POST", url, body)
+        return resp.get("value")
+
+
+    def create_pdf(self, driver, file_name):
+        command = "Page.printToPDF"
+        params = {'paper_width': '8.27', 'paper_height': '11.69'}
+        result = self.send_devtools(driver, command,  params)
+        self.save_pdf(result, file_name)
+        return
+
+
+    def save_pdf(self, data, file_name):
+        name = self.local_dir+'/'+file_name
+        with open(name, 'wb') as file:
+            file.write(b64decode(data['data']))
+        print('PDF created')
