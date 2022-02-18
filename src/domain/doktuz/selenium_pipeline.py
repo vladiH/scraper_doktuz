@@ -1,21 +1,22 @@
 import os
 import json
 import datetime
+import time
 from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
-from textwrap import dedent
+#from textwrap import dedent
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class DoktuzSeleniumPipeline:
     def __init__(self,driver_path, local_dir):
         self.driver_path = driver_path
         self.local_dir = local_dir
         self.cookie = None
-        self.session_id = None
 
     def open_spider(self, spider):
         try:
@@ -28,27 +29,52 @@ class DoktuzSeleniumPipeline:
             raise e
     def setup_driver(self):
         try:
+            caps = DesiredCapabilities().CHROME
+            caps["pageLoadStrategy"] = "eager"  #  complete
             chrome_options = webdriver.ChromeOptions()
             settings = {"recentDestinations": [{"id": "Save as PDF", "origin": "local", "account": ""}],
             "selectedDestinationId": "Save as PDF", "version": 2}
-            prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings),
-            'savefile.default_directory': self.local_dir}
+            prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings)}
             chrome_options.add_experimental_option('prefs', prefs)
-            chrome_options.add_argument("--disable-infobars")
-            chrome_options.add_argument("--disable-extensions")
-            chrome_options.add_argument("--disable-popup-blocking")
+            #chrome_options.add_argument("--disable-infobars")
+            #chrome_options.add_argument("--disable-extensions")
+            #chrome_options.add_argument("--disable-popup-blocking")
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument("--disable-extensions")
+            #chrome_options.add_argument("--disable-extensions")
+            #chrome_options.add_argument("--disable-software-rasterizer")
+            #chrome_options.add_argument("--disable-gpu")
+            #chrome_options.add_argument('--dns-prefetch-disable')
+
+            '''#chrome_options.add_argument("--no-sandbox")
+            #chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument("--aggressive-cache-discard")
+            #chrome_options.add_argument("--disable-cache")
+            chrome_options.add_argument("--disable-application-cache")
+            chrome_options.add_argument("--disable-offline-load-stale-cache")
+            chrome_options.add_argument("--disk-cache-size=2000000")
+            chrome_options.add_argument("--media-cache-size=2000000")
+            #chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--disable-gpu")
+            chrome_options.add_argument("--disable-plugins ")
+            chrome_options.add_argument("--dns-prefetch-disable")
+            chrome_options.add_argument("--no-proxy-server")
+            chrome_options.add_argument("--log-level=3")
+            chrome_options.add_argument("--silent")
+            chrome_options.add_argument("--disable-browser-side-navigation"); 
+            #chrome_options.setPageLoadStrategy(PageLoadStrategy.NORMAL); '''
             if Config.HIDDEN:
-                #chrome_options.add_argument("--disable-gpu")
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
-            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options)
-            self.session_id = self.driver.session_id
+            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options, desired_capabilities=caps)
+            
             self.driver.set_page_load_timeout(60)
             self.driver.set_script_timeout(60)
+            if self.cookie is not None:
+                self.driver.delete_all_cookies()
+                self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
+                    'domain': 'intranet.doktuz.com', 'path': '/'})
         except Exception as e:
             raise e
 
@@ -100,13 +126,13 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
-            #self.wait_for_ajax()
+            self.wait_for_ajax()
             self.wait_for_loading_fade()
             self.wait_until_images_loaded(self.driver)
             #self.create_directory(dir_name)
             if Config.HIDDEN:
-                #self.create_pdf(self.driver, file_name)
-                self.print_headless_page(file_name, link)
+                self.create_pdf(self.driver, file_name)
+                #self.print_headless_page(file_name, link)
             else:
                 self.print_page(file_name)
         except Exception as e:
@@ -120,8 +146,10 @@ class DoktuzSeleniumPipeline:
     def wait_for_ajax(self):
         wait = WebDriverWait(self.driver, 60)
         try:
-            wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
-            wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
+            is_jquery_present = self.driver.execute_script("return (typeof jQuery != 'undefined');")
+            if is_jquery_present:
+                wait.until(lambda driver: driver.execute_script('return jQuery.active') == 0)
+                wait.until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
         except Exception as e:
             Logger.error('waiting error, ajax code error {}'.format(e), exc_info=True)
 
@@ -129,8 +157,11 @@ class DoktuzSeleniumPipeline:
         try:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
             #print(self.driver.__sizeof__())
+            #WebDriverWait(self.driver, 60, poll_frequency=0.1, ignored_exceptions=None).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
             WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
-
+        except TimeoutException as timeout:
+             Logger.error('waiting error, timeout loading fade error {}'.format(timeout))
+             raise timeout
         except Exception as e:
             Logger.error('waiting error, loading fade error {}'.format(e))
             raise e
@@ -176,7 +207,7 @@ class DoktuzSeleniumPipeline:
             Logger.error('creation error, creating directory', exc_info=True)
             raise e
 
-    def wait_until_images_loaded(self, driver, timeout=60):
+    def wait_until_images_loaded(self, driver, timeout=120):
         try:
             elements = self.driver.find_elements(by=By.TAG_NAME, value='img')
             WebDriverWait(self.driver, timeout).until(lambda wd:self.all_array_elements_are_true(wd,elements) )
@@ -195,15 +226,13 @@ class DoktuzSeleniumPipeline:
             Logger.error('all_array_elements_are_true:  {}'.format(e), exc_info=True)
             raise e
     
-    def send_devtools(self, driver, command, params=None):
+    def send_devtools(self, driver, command, params={}):
         try:
-            if params is None:
-                params = {}
-                resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
-                url = driver.command_executor._url + resource
-                body = json.dumps({"cmd": command, "params": params})
-                resp = driver.command_executor._request("POST", url, body)
-                return resp.get("value")
+            resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
+            url = driver.command_executor._url + resource
+            body = json.dumps({"cmd": command, "params": params})
+            resp = driver.command_executor._request("POST", url, body)
+            return resp.get("value")
         except Exception as e:
             raise e
 
