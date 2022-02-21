@@ -39,6 +39,7 @@ class AppConfig:
     DB_TYPE:str
     HIDDEN:bool
     PDF_OUTPUT_PATH:str
+    BROWSER:str
     """
     Map environment variables to class fields according to these rules:
       - Field won't be parsed unless it has a type annotation
