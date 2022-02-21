@@ -190,6 +190,7 @@ class DoktuzSeleniumPipeline:
             WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         except TimeoutException as e:
             Logger.error('DoktuzSeleniumPipeline.wait_for_body: timeout waiting for body')
+            raise e
 
     def wait_for_ajax(self):
         wait = WebDriverWait(self.driver, 60)
@@ -199,6 +200,7 @@ class DoktuzSeleniumPipeline:
                 wait.until(lambda driver: driver.execute_script("return !!window.jQuery && window.jQuery.active == 0"))
         except Exception as e:
             Logger.error('waiting error, ajax code error {}'.format(e), exc_info=True)
+            raise e
 
     def wait_for_loading_fade(self):
         try:
@@ -324,7 +326,7 @@ class DoktuzSeleniumPipeline:
             return True
         except Exception as e:
             Logger.error('all_array_elements_are_true:  {}'.format(e), exc_info=True)
-            return False
+            raise e
     
     def send_devtools(self, driver, command, params={}):
         try:
