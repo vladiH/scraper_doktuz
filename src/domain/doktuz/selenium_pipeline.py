@@ -1,8 +1,6 @@
-from lib2to3.pytree import convert
 import os
 import json
 import datetime
-import sys
 import time
 from base64 import b64decode
 from config import Config, Logger
@@ -12,9 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from PIL import Image
-from io import BytesIO
-from selenium.webdriver.common.action_chains import ActionChains
+#from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 class DoktuzSeleniumPipeline:
     def __init__(self,driver_path, local_dir):
