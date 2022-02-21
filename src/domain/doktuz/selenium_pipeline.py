@@ -110,7 +110,8 @@ class DoktuzSeleniumPipeline:
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
-            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options, desired_capabilities=caps)
+            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options, desired_capabilities=caps,
+            service_args=["--verbose", "--log-path=K:\WORKS\PYTHON\SIMPLEXGO\scraper_doktuz\pdfs\qc1.log"])
         except Exception as e:
             raise e
 
@@ -143,6 +144,8 @@ class DoktuzSeleniumPipeline:
             motzilla_options.set_preference('print.printer_PDF.print_paper_id','iso_a4')
             motzilla_options.set_preference('print.printer_PDF.print_margin_bottom',"0.2")
             motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")
+            motzilla_options.add_argument('--no-sandbox')
+            motzilla_options.add_argument('--disable-dev-shm-usage')
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
                 motzilla_options.add_argument("--disable-gpu")
