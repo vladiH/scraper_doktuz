@@ -122,26 +122,27 @@ class DoktuzSeleniumPipeline:
             user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11.5; rv:90.0) Gecko/20100101 Firefox/90.0'
             motzilla_options.set_preference('profile_options = FirefoxProfile()', user_agent)
 
-            motzilla_options.set_preference("print_printer", "Microsoft Print to PDF")
+            motzilla_options.set_preference("print_printer", "PDF")
 
             motzilla_options.set_preference("print.always_print_silent", True)
             motzilla_options.set_preference("print.show_print_progress", False)
             motzilla_options.set_preference('print.save_as_pdf.links.enabled', True)
+            motzilla_options.set_preference('print.tab_modal.enabled', False)
 
-            motzilla_options.set_preference("print.printer_Microsoft_Print_to_PDF.print_to_file", True)
+            motzilla_options.set_preference("print.printer_PDF.print_to_file", True)
 
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_to_filename', "testprint.pdf")
+            motzilla_options.set_preference('print.printer_PDF.print_to_filename', "testprint.pdf")
 
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_to_filename',self.local_dir+"/"+ self.tmp_file_name)
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_paper_size_unit',1)
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_bgcolor',True)
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_paper_height',"297")
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_paper_width',"210")
-            #motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_resolution',1200)
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_shrink_to_fit',True)
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_paper_id','iso_a4')
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_margin_bottom',"0.2")
-            motzilla_options.set_preference('print.printer_Microsoft_Print_to_PDF.print_margin_top',"0.2")
+            motzilla_options.set_preference('print.printer_PDF.print_to_filename',self.local_dir+"/"+ self.tmp_file_name)
+            motzilla_options.set_preference('print.printer_PDF.print_paper_size_unit',1)
+            motzilla_options.set_preference('print.printer_PDF.print_bgcolor',True)
+            motzilla_options.set_preference('print.printer_PDF.print_paper_height',"297")
+            motzilla_options.set_preference('print.printer_PDF.print_paper_width',"210")
+            #motzilla_options.set_preference('print.printer_PDF.print_resolution',1200)
+            motzilla_options.set_preference('print.printer_PDF.print_shrink_to_fit',True)
+            motzilla_options.set_preference('print.printer_PDF.print_paper_id','iso_a4')
+            motzilla_options.set_preference('print.printer_PDF.print_margin_bottom',"0.2")
+            motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
             self.driver = webdriver.Firefox(executable_path=self.driver_path, options=motzilla_options, desired_capabilities=caps)
@@ -165,6 +166,7 @@ class DoktuzSeleniumPipeline:
                 else:
                     self.print_chrome_page(file_name)
             elif Config.BROWSER == 'firefox':
+                #self.create_chrome_pdf(self.driver, file_name)
                 self.print_motzilla_page(file_name)
                 self.rename_file(self.tmp_file_name, file_name)
             else:
@@ -328,12 +330,24 @@ class DoktuzSeleniumPipeline:
         except Exception as e:
             raise e
 
+    def send_devtools_firefox(self, driver, command, params={}):
+        try:
+            resource = "/session/%s/moz/send_command_and_get_result" % driver.session_id
+            url = driver.command_executor._url + resource
+            command = 'send_command'
+            driver.command_executor._commands['send_command'] = ('POST', url)
+            body = json.dumps({"cmd": command, "params": params})
+            resp = self.driver.execute(command)
+            return resp.get("value")
+        except Exception as e:
+            raise e
+
 
     def create_chrome_pdf(self, driver, file_name):
         try:
             command = "Page.printToPDF"
             params = {'paper_width': '8.27', 'paper_height': '11.69'}
-            result = self.send_devtools(driver, command,  params)
+            result = self.send_devtools_firefox(driver, command,  params)
             self.save_pdf(result, file_name)
             return
         except Exception as e:
