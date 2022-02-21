@@ -145,6 +145,7 @@ class DoktuzSeleniumPipeline:
             motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
+                motzilla_options.add_argument("--disable-gpu")
             self.driver = webdriver.Firefox(executable_path=self.driver_path, options=motzilla_options, desired_capabilities=caps)
         except Exception as e:
             raise e
