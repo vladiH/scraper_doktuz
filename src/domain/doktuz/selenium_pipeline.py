@@ -146,9 +146,12 @@ class DoktuzSeleniumPipeline:
             motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")
             motzilla_options.add_argument('--no-sandbox')
             motzilla_options.add_argument('--disable-dev-shm-usage')
+            motzilla_options.add_argument('--ignore-certificate-errors')
+            motzilla_options.add_argument('--disable-setuid-sandbox')
+            motzilla_options.add_argument("--disable-gpu")
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
-                motzilla_options.add_argument("--disable-gpu")
+                
             self.driver = webdriver.Firefox(executable_path=self.driver_path, options=motzilla_options, desired_capabilities=caps)
         except Exception as e:
             raise e
