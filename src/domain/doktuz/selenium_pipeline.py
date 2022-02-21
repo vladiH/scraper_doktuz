@@ -80,8 +80,8 @@ class DoktuzSeleniumPipeline:
                         item['imp'] = item['codigo']+"-imp.pdf"
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
-            #self.setup_driver()
-            Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
+            self.driver.quit()
+            #Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
         finally:
             if item!=None:
                 item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
