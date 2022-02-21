@@ -80,7 +80,7 @@ class DoktuzSeleniumPipeline:
                         item['imp'] = item['codigo']+"-imp.pdf"
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
-            self.setup_driver()
+            #self.setup_driver()
             Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
         finally:
             if item!=None:
@@ -153,7 +153,6 @@ class DoktuzSeleniumPipeline:
         try:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
-            self.driver.command_executor.set_timeout(10)
             self.driver.get(link)
             self.wait_for_body()
             self.wait_for_ajax()
