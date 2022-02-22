@@ -131,6 +131,7 @@ class DoktuzSeleniumPipeline:
             motzilla_options.add_argument('--ignore-certificate-errors')
             motzilla_options.add_argument('--disable-setuid-sandbox')
             motzilla_options.add_argument("--disable-gpu")
+            motzilla_options.add_argument("--aggressive-cache-discard")
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
                 
@@ -346,6 +347,7 @@ class DoktuzSeleniumPipeline:
             name = self.local_dir+'/'+file_name
             with open(name, 'wb') as file:
                 file.write(b64decode(data))
+            time.sleep(2)
         except Exception as e:
             Logger.error('generate_pdf:  {}'.format(e), exc_info=True)
             raise e
