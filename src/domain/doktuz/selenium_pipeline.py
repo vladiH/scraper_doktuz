@@ -1,4 +1,5 @@
 import os
+import tempfile
 import json
 import datetime
 import time
@@ -40,6 +41,7 @@ class DoktuzSeleniumPipeline:
 
     def setup_driver(self):
         try:
+            
             if Config.BROWSER == 'chrome':
                 self.setup_chrome_driver()
             elif Config.BROWSER == 'firefox':
@@ -103,6 +105,10 @@ class DoktuzSeleniumPipeline:
 
     def setup_motzilla_driver(self):
         try:
+            # Custom profile folder to keep the minidump files
+            profile = tempfile.mkdtemp(".selenium")
+            print("*** Using profile: {}".format(profile))
+
             caps = DesiredCapabilities().FIREFOX
             caps["pageLoadStrategy"] = "normal"  # eager none
             motzilla_options = webdriver.FirefoxOptions()
@@ -126,6 +132,8 @@ class DoktuzSeleniumPipeline:
             motzilla_options.set_preference('print.printer_PDF.print_paper_id','iso_a4')
             motzilla_options.set_preference('print.printer_PDF.print_margin_bottom',"0.2")
             motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")'''
+            motzilla_options.add_argument("-profile")
+            motzilla_options.add_argument(profile)
             motzilla_options.add_argument('--no-sandbox')
             motzilla_options.add_argument('--disable-dev-shm-usage')
             motzilla_options.add_argument('--ignore-certificate-errors')
@@ -135,7 +143,8 @@ class DoktuzSeleniumPipeline:
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
                 
-            self.driver = webdriver.Firefox(executable_path=self.driver_path, options=motzilla_options, desired_capabilities=caps)
+            self.driver = webdriver.Firefox(executable_path=self.driver_path, options=motzilla_options, desired_capabilities=caps,
+            service_args=["--marionette-port", "2828"])
         except Exception as e:
             raise e
 
@@ -226,8 +235,8 @@ class DoktuzSeleniumPipeline:
             #print(self.driver.__sizeof__())
             #WebDriverWait(self.driver, 60, poll_frequency=0.1, ignored_exceptions=None).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
             WebDriverWait(self.driver, 120).until_not(EC.presence_of_all_elements_located((By.CLASS_NAME,'imgLOAD')))
-            WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((By.CLASS_NAME,'imgLOAD')))
-            WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), 'Cargando...'))
+            #WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((By.CLASS_NAME,'imgLOAD')))
+            #WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), 'Cargando...'))
         except TimeoutException as timeout:
              Logger.error('waiting error, timeout loading fade error {}'.format(timeout))
              raise timeout
