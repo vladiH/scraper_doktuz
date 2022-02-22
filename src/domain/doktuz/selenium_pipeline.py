@@ -140,6 +140,9 @@ class DoktuzSeleniumPipeline:
             motzilla_options.add_argument('--disable-setuid-sandbox')
             motzilla_options.add_argument("--disable-gpu")
             motzilla_options.add_argument("--aggressive-cache-discard")
+            motzilla_options.add_argument("start-maximized")
+            motzilla_options.add_argument("disable-infobars")
+            motzilla_options.add_argument("--disable-extensions")
             if Config.HIDDEN:
                 motzilla_options.add_argument('--headless')
                 
@@ -166,10 +169,12 @@ class DoktuzSeleniumPipeline:
                         self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
                         item['certificado_downloaded'] = True
                         item['certificado'] = item['codigo']+"-certificado.pdf"
+                    time.sleep(4)
                     if('imp' in item and item['imp_downloaded']==False):
                         self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                         item['imp_downloaded'] = True
                         item['imp'] = item['codigo']+"-imp.pdf"
+                    time.sleep(4)
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
         finally:
@@ -183,14 +188,19 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
+            time.sleep(2)
             self.wait_for_body()
+            time.sleep(2)
             self.wait_for_ajax()
+            time.sleep(2)
             self.wait_for_loading_fade()
+            time.sleep(2)
             '''file = open("sample.html","w")
             l = self.driver.page_source
             file.write(l)
             file.close()'''
             self.wait_until_images_loaded(self.driver)
+            time.sleep(2)
             if Config.BROWSER == 'chrome':
                 if Config.HIDDEN:
                     self.create_chrome_pdf(self.driver, file_name)
@@ -353,6 +363,7 @@ class DoktuzSeleniumPipeline:
     def generate_pdf(self,driver, file_name):
         try:
             data = driver.print_page(self.print_options)
+            time.sleep(2)
             name = self.local_dir+'/'+file_name
             with open(name, 'wb') as file:
                 file.write(b64decode(data))
