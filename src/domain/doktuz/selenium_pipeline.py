@@ -3,8 +3,8 @@ import tempfile
 import json
 import datetime
 #import time
-from PIL import Image
-from io import BytesIO
+#from PIL import Image
+#from io import BytesIO
 from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
@@ -378,7 +378,7 @@ class DoktuzSeleniumPipeline:
             Logger.error('generate_pdf:  {}'.format(e), exc_info=True)
             raise e
 
-    def screenshot(self,driver, file_name):
+    '''def screenshot(self,driver, file_name):
         try:
             #time.sleep(2)
             websiteScreenshot = Image.open(BytesIO(driver.find_element_by_tag_name('body').screenshot_as_png))
@@ -387,7 +387,7 @@ class DoktuzSeleniumPipeline:
             rgbImage.save(self.local_dir+'/'+file_name, "PDF", resolution=100)
         except Exception as e:
             Logger.error('screenshot error:  {}'.format(e), exc_info=True)
-            raise e
+            raise e'''
 
     def send_devtools_firefox(self, driver, command, params={}):
         try:
