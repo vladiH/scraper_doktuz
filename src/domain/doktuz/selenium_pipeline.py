@@ -393,5 +393,6 @@ class DoktuzSeleniumPipeline:
             with open(name, 'wb') as file:
                 file.write(b64decode(data['data']))
             #print('PDF created')
+            time.sleep(2)
         except Exception as e:
             raise e
