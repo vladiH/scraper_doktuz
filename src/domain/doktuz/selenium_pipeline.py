@@ -12,12 +12,23 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 #from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.print_page_options import PrintOptions
 class DoktuzSeleniumPipeline:
     def __init__(self,driver_path, local_dir):
         self.driver_path = driver_path
         self.local_dir = local_dir
         self.cookie = None
         self.tmp_file_name = "file.pdf"
+        self.print_options = None
+    
+    def init_print_options(self):
+        self.print_options = PrintOptions()
+        self.print_options.margin_bottom=0.3
+        self.print_options.margin_top=0.3
+        self.print_options.background=True
+        self.print_options.page_height=11.0
+        self.print_options.page_width=8.5
+
     def open_spider(self, spider):
         try:
             self.local_dir = self.local_dir
@@ -35,8 +46,15 @@ class DoktuzSeleniumPipeline:
                 self.setup_motzilla_driver()
             else:
                 raise Exception("browser not supported")
+            #self.driver.install_addon('K:\WORKS\PYTHON\SIMPLEXGO\scraper_doktuz\save_pdf-0.1-an+fx.xpi', temporary=True)
+            #self.driver.get("about:support")
+            #addons = self.driver.find_element_by_xpath('//*[contains(text(),"Add-ons") and not(contains(text(),"with"))]')
+            # scrolling to the section on the support page that lists installed extension
+        
+            #self.driver.execute_script("arguments[0].scrollIntoView();", addons)
             #self.driver.set_page_load_timeout(60)
             #self.driver.set_script_timeout(60)
+            self.init_print_options()
             if self.cookie is not None:
                 self.driver.delete_all_cookies()
                 self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
@@ -55,39 +73,7 @@ class DoktuzSeleniumPipeline:
             driver_path=dp,
             local_dir = Config.PDF_OUTPUT_PATH
         )
-
-    async def process_item(self, item, spider):
-        try:
-            if item!= None:
-                Logger.info("Processing item: {}".format(item))
-                if(self.cookie==None or self.driver.get_cookies()==[]):
-                    self.cookie = item['cookie'].split('=')
-                    self.driver.get('https://intranet.doktuz.com/Resultados/Empresa/resultados.php')
-                    self.driver.delete_all_cookies()
-                    self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
-                    'domain': 'intranet.doktuz.com', 'path': '/'})
-                if(not self.driver.get_cookies()):
-                    Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
-                else:
-                    dir_name = self.local_dir+'/'+item['codigo']
-                    if('certificado' in item and item['certificado_downloaded']==False):
-                        self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
-                        item['certificado_downloaded'] = True
-                        item['certificado'] = item['codigo']+"-certificado.pdf"
-                    if('imp' in item and item['imp_downloaded']==False):
-                        self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
-                        item['imp_downloaded'] = True
-                        item['imp'] = item['codigo']+"-imp.pdf"
-        except Exception as e:
-            Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
-            self.driver.quit()
-            #Logger.warning('DoktuzSeleniumPipeline.page_as_pdf: driver seccessfully restarted')
-        finally:
-            if item!=None:
-                item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-                del item['cookie']
-            return item
-
+    
     def setup_chrome_driver(self):
         try:
             caps = DesiredCapabilities().CHROME
@@ -123,27 +109,23 @@ class DoktuzSeleniumPipeline:
             user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11.5; rv:90.0) Gecko/20100101 Firefox/90.0'
             motzilla_options.set_preference('profile_options = FirefoxProfile()', user_agent)
 
-            motzilla_options.set_preference("print_printer", "PDF")
-
+            '''motzilla_options.set_preference("print_printer", "PDF")
             motzilla_options.set_preference("print.always_print_silent", True)
             motzilla_options.set_preference("print.show_print_progress", False)
             motzilla_options.set_preference('print.save_as_pdf.links.enabled', True)
             motzilla_options.set_preference('print.tab_modal.enabled', False)
-
             motzilla_options.set_preference("print.printer_PDF.print_to_file", True)
-
             motzilla_options.set_preference('print.printer_PDF.print_to_filename', "testprint.pdf")
-
             motzilla_options.set_preference('print.printer_PDF.print_to_filename',self.local_dir+"/"+ self.tmp_file_name)
             motzilla_options.set_preference('print.printer_PDF.print_paper_size_unit',1)
             motzilla_options.set_preference('print.printer_PDF.print_bgcolor',True)
             motzilla_options.set_preference('print.printer_PDF.print_paper_height',"297")
             motzilla_options.set_preference('print.printer_PDF.print_paper_width',"210")
-            #motzilla_options.set_preference('print.printer_PDF.print_resolution',1200)
+            motzilla_options.set_preference('print.printer_PDF.print_resolution',1200)
             motzilla_options.set_preference('print.printer_PDF.print_shrink_to_fit',True)
             motzilla_options.set_preference('print.printer_PDF.print_paper_id','iso_a4')
             motzilla_options.set_preference('print.printer_PDF.print_margin_bottom',"0.2")
-            motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")
+            motzilla_options.set_preference('print.printer_PDF.print_margin_top',"0.2")'''
             motzilla_options.add_argument('--no-sandbox')
             motzilla_options.add_argument('--disable-dev-shm-usage')
             motzilla_options.add_argument('--ignore-certificate-errors')
@@ -156,6 +138,36 @@ class DoktuzSeleniumPipeline:
         except Exception as e:
             raise e
 
+    def process_item(self, item, spider):
+        try:
+            if item!= None:
+                Logger.info("Processing item: {}".format(item))
+                if(self.cookie==None or self.driver.get_cookies()==[]):
+                    self.cookie = item['cookie'].split('=')
+                    self.driver.get('https://intranet.doktuz.com/Resultados/Empresa/resultados.php')
+                    self.driver.delete_all_cookies()
+                    self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
+                    'domain': 'intranet.doktuz.com', 'path': '/'})
+                if(not self.driver.get_cookies()):
+                    Logger.warning('DoktuzSeleniumPipeline.process_item: pdf has not been processed, not cookies. {}'.format(item))
+                else:
+                    dir_name = self.local_dir+'/'+item['codigo']
+                    if('certificado' in item and item['certificado_downloaded']==False):
+                        self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
+                        item['certificado_downloaded'] = True
+                        item['certificado'] = item['codigo']+"-certificado.pdf"
+                    if('imp' in item and item['imp_downloaded']==False):
+                        self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
+                        item['imp_downloaded'] = True
+                        item['imp'] = item['codigo']+"-imp.pdf"
+        except Exception as e:
+            Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
+        finally:
+            if item!=None:
+                item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+                del item['cookie']
+            return item
+
     def page_as_pdf(self, link, dir_name, file_name):
         try:
             self.driver.execute_script('''window.open();''')
@@ -164,6 +176,10 @@ class DoktuzSeleniumPipeline:
             self.wait_for_body()
             self.wait_for_ajax()
             self.wait_for_loading_fade()
+            '''file = open("sample.html","w")
+            l = self.driver.page_source
+            file.write(l)
+            file.close()'''
             self.wait_until_images_loaded(self.driver)
             if Config.BROWSER == 'chrome':
                 if Config.HIDDEN:
@@ -172,9 +188,10 @@ class DoktuzSeleniumPipeline:
                 else:
                     self.print_chrome_page(file_name)
             elif Config.BROWSER == 'firefox':
-                #self.create_chrome_pdf(self.driver, file_name)
-                self.print_motzilla_page(file_name)
-                self.rename_file(self.tmp_file_name, file_name)
+                self.generate_pdf(self.driver, file_name)
+                '''This functions only works on linux'''
+                #self.print_motzilla_page(file_name)
+                #self.rename_file(self.tmp_file_name, file_name)
             else:
                 raise Exception('DoktuzSeleniumPipeline.page_as_pdf: browser not supported')
         except Exception as e:
@@ -207,12 +224,7 @@ class DoktuzSeleniumPipeline:
             #elements = self.driver.find_elements(by=By.CLASS_NAME, value='FacetDataTDM14')
             #print(self.driver.__sizeof__())
             #WebDriverWait(self.driver, 60, poll_frequency=0.1, ignored_exceptions=None).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
-            '''
-            file = open("sample.html","w")
-            l = self.driver.page_source
-            file.write(l)
-            file.close()
-            '''
+            WebDriverWait(self.driver, 120).until_not(EC.presence_of_all_elements_located((By.CLASS_NAME,'imgLOAD')))
             WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((By.CLASS_NAME,'imgLOAD')))
             WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), 'Cargando...'))
         except TimeoutException as timeout:
@@ -327,7 +339,44 @@ class DoktuzSeleniumPipeline:
         except Exception as e:
             Logger.error('all_array_elements_are_true:  {}'.format(e), exc_info=True)
             raise e
+
+    def generate_pdf(self,driver, file_name):
+        try:
+            data = driver.print_page(self.print_options)
+            name = self.local_dir+'/'+file_name
+            with open(name, 'wb') as file:
+                file.write(b64decode(data))
+        except Exception as e:
+            Logger.error('generate_pdf:  {}'.format(e), exc_info=True)
+            raise e
+
     
+
+    def send_devtools_firefox(self, driver, command, params={}):
+        try:
+            resp= self.driver.print_page(self.print_options)
+            '''resource = "/session/%s/print" % driver.session_id
+            url = driver.command_executor._url + resource
+            command = 'send_command'
+            driver.command_executor._commands['send_command'] = ('POST', url)
+            body = json.dumps({"cmd": command, "params": params})
+            resp = self.driver.execute(command)'''
+            
+            return resp
+        except Exception as e:
+            raise e
+
+    def create_chrome_pdf(self, driver, file_name):
+        try:
+            command = "Page.printToPDF"
+            params = {'paper_width': '8.27', 'paper_height': '11.69'}
+            result = self.send_devtools(driver, command,  params)
+            self.save_pdf(result, file_name)
+            return
+        except Exception as e:
+            Logger.error('send_devtools:  {}'.format(e), exc_info=True)
+            raise e
+
     def send_devtools(self, driver, command, params={}):
         try:
             resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
@@ -337,31 +386,6 @@ class DoktuzSeleniumPipeline:
             return resp.get("value")
         except Exception as e:
             raise e
-
-    def send_devtools_firefox(self, driver, command, params={}):
-        try:
-            resource = "/session/%s/moz/send_command_and_get_result" % driver.session_id
-            url = driver.command_executor._url + resource
-            command = 'send_command'
-            driver.command_executor._commands['send_command'] = ('POST', url)
-            body = json.dumps({"cmd": command, "params": params})
-            resp = self.driver.execute(command)
-            return resp.get("value")
-        except Exception as e:
-            raise e
-
-
-    def create_chrome_pdf(self, driver, file_name):
-        try:
-            command = "Page.printToPDF"
-            params = {'paper_width': '8.27', 'paper_height': '11.69'}
-            result = self.send_devtools_firefox(driver, command,  params)
-            self.save_pdf(result, file_name)
-            return
-        except Exception as e:
-            Logger.error('send_devtools:  {}'.format(e), exc_info=True)
-            raise e
-
 
     def save_pdf(self, data, file_name):
         try:
