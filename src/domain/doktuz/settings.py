@@ -66,7 +66,7 @@ ITEM_PIPELINES = {
     'src.domain.doktuz.pipelines.DoktuzPipeline': 200,
     'src.domain.doktuz.check_data_base_pipeline.CheckDataBasePipeline': 300,
     'src.domain.doktuz.selenium_pipeline.DoktuzSeleniumPipeline': 400,
-    'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
+    #'src.domain.doktuz.data_base_pipeline.DatabasePipeline': 500,
     'src.domain.doktuz.excel_file_pipeline.ExcelFilePipeline': 1,
     'src.domain.doktuz.save_excel_pipeline.SaveExcelPipeline': 2,
 }

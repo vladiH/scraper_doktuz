@@ -2,7 +2,9 @@ import os
 import tempfile
 import json
 import datetime
-import time
+#import time
+from PIL import Image
+from io import BytesIO
 from base64 import b64decode
 from config import Config, Logger
 from selenium import webdriver
@@ -144,6 +146,7 @@ class DoktuzSeleniumPipeline:
             motzilla_options.add_argument("disable-infobars")
             motzilla_options.add_argument("--disable-extensions")
             if Config.HIDDEN:
+                motzilla_options.add_argument('--single-process')
                 motzilla_options.add_argument('--headless')
                 
             self.driver = webdriver.Firefox(executable_path=self.driver_path, options=motzilla_options, desired_capabilities=caps,
@@ -169,12 +172,12 @@ class DoktuzSeleniumPipeline:
                         self.page_as_pdf(item['certificado'],dir_name,item['codigo']+"-certificado.pdf")
                         item['certificado_downloaded'] = True
                         item['certificado'] = item['codigo']+"-certificado.pdf"
-                    time.sleep(4)
+                    
                     if('imp' in item and item['imp_downloaded']==False):
                         self.page_as_pdf(item['imp'],dir_name,item['codigo']+"-imp.pdf")
                         item['imp_downloaded'] = True
                         item['imp'] = item['codigo']+"-imp.pdf"
-                    time.sleep(4)
+                    
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
         finally:
@@ -182,25 +185,26 @@ class DoktuzSeleniumPipeline:
                 item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
                 del item['cookie']
             return item
+    
 
     def page_as_pdf(self, link, dir_name, file_name):
         try:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
-            time.sleep(2)
+            
             self.wait_for_body()
-            time.sleep(2)
+            
             self.wait_for_ajax()
-            time.sleep(2)
+            
             self.wait_for_loading_fade()
-            time.sleep(2)
+            
             '''file = open("sample.html","w")
             l = self.driver.page_source
             file.write(l)
             file.close()'''
             self.wait_until_images_loaded(self.driver)
-            time.sleep(2)
+            
             if Config.BROWSER == 'chrome':
                 if Config.HIDDEN:
                     self.create_chrome_pdf(self.driver, file_name)
@@ -208,8 +212,11 @@ class DoktuzSeleniumPipeline:
                 else:
                     self.print_chrome_page(file_name)
             elif Config.BROWSER == 'firefox':
+                #RAM Resource not available in petrolwatcher
                 self.generate_pdf(self.driver, file_name)
+                #self.screenshot(self.driver, file_name)
                 '''This functions only works on linux'''
+                #ALTERNATIVE TO generate_pdf if there are some printer available
                 #self.print_motzilla_page(file_name)
                 #self.rename_file(self.tmp_file_name, file_name)
             else:
@@ -312,7 +319,6 @@ class DoktuzSeleniumPipeline:
 
     def rename_file(self, name, new, iter=10):
         try:
-            time.sleep(2)
             if iter == 0:
                 raise Exception('renaming error, file not renamed')
             else:
@@ -332,7 +338,7 @@ class DoktuzSeleniumPipeline:
 
     def check_download_file_size(self, file_name):
         try:
-            time.sleep(1)
+            
             file_size = os.path.getsize(self.local_dir+'/'+file_name)
             if file_size == 0:
                 return False
@@ -363,16 +369,25 @@ class DoktuzSeleniumPipeline:
     def generate_pdf(self,driver, file_name):
         try:
             data = driver.print_page(self.print_options)
-            time.sleep(2)
+            
             name = self.local_dir+'/'+file_name
             with open(name, 'wb') as file:
                 file.write(b64decode(data))
-            time.sleep(2)
+            
         except Exception as e:
             Logger.error('generate_pdf:  {}'.format(e), exc_info=True)
             raise e
 
-    
+    def screenshot(self,driver, file_name):
+        try:
+            #time.sleep(2)
+            websiteScreenshot = Image.open(BytesIO(driver.find_element_by_tag_name('body').screenshot_as_png))
+            rgbImage = Image.new('RGB', websiteScreenshot.size, (255, 255, 255))
+            rgbImage.paste(websiteScreenshot, mask=websiteScreenshot.split()[3])
+            rgbImage.save(self.local_dir+'/'+file_name, "PDF", resolution=100)
+        except Exception as e:
+            Logger.error('screenshot error:  {}'.format(e), exc_info=True)
+            raise e
 
     def send_devtools_firefox(self, driver, command, params={}):
         try:
@@ -415,6 +430,6 @@ class DoktuzSeleniumPipeline:
             with open(name, 'wb') as file:
                 file.write(b64decode(data['data']))
             #print('PDF created')
-            time.sleep(2)
+            
         except Exception as e:
             raise e
