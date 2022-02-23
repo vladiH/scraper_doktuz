@@ -252,8 +252,8 @@ class DoktuzSeleniumPipeline:
             #print(self.driver.__sizeof__())
             #WebDriverWait(self.driver, 60, poll_frequency=0.1, ignored_exceptions=None).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), "Cargando..."))
             WebDriverWait(self.driver, 120).until_not(EC.presence_of_all_elements_located((By.CLASS_NAME,'imgLOAD')))
-            #WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((By.CLASS_NAME,'imgLOAD')))
-            #WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), 'Cargando...'))
+            WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((By.CLASS_NAME,'imgLOAD')))
+            WebDriverWait(self.driver, 60).until_not(EC.text_to_be_present_in_element((By.CLASS_NAME,'FacetDataTDM14'), 'Cargando...'))
         except TimeoutException as timeout:
              Logger.error('waiting error, timeout loading fade error {}'.format(timeout))
              raise timeout
