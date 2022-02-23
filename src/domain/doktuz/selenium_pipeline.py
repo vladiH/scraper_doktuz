@@ -180,6 +180,7 @@ class DoktuzSeleniumPipeline:
                     
         except Exception as e:
             Logger.error('DoktuzSeleniumPipeline.process_item: pdf has not been processed. {}, error:{}'.format(item, e))
+            self.setup_driver()
         finally:
             if item!=None:
                 item['fecha_downloaded'] = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
