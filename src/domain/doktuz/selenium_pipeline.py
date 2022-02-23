@@ -2,7 +2,7 @@ import os
 import tempfile
 import json
 import datetime
-#import time
+import time
 #from PIL import Image
 #from io import BytesIO
 from base64 import b64decode
@@ -192,7 +192,7 @@ class DoktuzSeleniumPipeline:
             self.driver.execute_script('''window.open();''')
             self.driver.switch_to.window(self.driver.window_handles[1])
             self.driver.get(link)
-            
+            time.sleep(3)
             self.wait_for_body()
             
             self.wait_for_ajax()
@@ -369,7 +369,7 @@ class DoktuzSeleniumPipeline:
     def generate_pdf(self,driver, file_name):
         try:
             data = driver.print_page(self.print_options)
-            
+
             name = self.local_dir+'/'+file_name
             with open(name, 'wb') as file:
                 file.write(b64decode(data))
