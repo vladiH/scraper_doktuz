@@ -101,7 +101,7 @@ class DoktuzSeleniumPipeline:
                 chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
             self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options, desired_capabilities=caps,
-            service_args=["--verbose", "--log-path=K:\WORKS\PYTHON\SIMPLEXGO\scraper_doktuz\pdfs\qc1.log"])
+            service_args=["--verbose", "--log-path=./qc1.log"])
         except Exception as e:
             raise e
 
