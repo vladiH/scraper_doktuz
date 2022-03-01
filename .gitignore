@@ -149,3 +149,4 @@ pdfs/
 tmp/
 *.pdf
 .vscode/
+*.sql

@@ -23,6 +23,7 @@ class DoktuzSeleniumPipeline:
         self.cookie = None
         self.tmp_file_name = "file.pdf"
         self.print_options = None
+        self.driver=None
     
     def init_print_options(self):
         self.print_options = PrintOptions()
@@ -44,28 +45,31 @@ class DoktuzSeleniumPipeline:
     def setup_driver(self):
         try:
             
-            if Config.BROWSER == 'chrome':
-                self.setup_chrome_driver()
-            elif Config.BROWSER == 'firefox':
-                self.setup_motzilla_driver()
-            else:
-                raise Exception("browser not supported")
-            #self.driver.install_addon('K:\WORKS\PYTHON\SIMPLEXGO\scraper_doktuz\save_pdf-0.1-an+fx.xpi', temporary=True)
-            #self.driver.get("about:support")
-            #addons = self.driver.find_element_by_xpath('//*[contains(text(),"Add-ons") and not(contains(text(),"with"))]')
-            # scrolling to the section on the support page that lists installed extension
-        
-            #self.driver.execute_script("arguments[0].scrollIntoView();", addons)
-            #self.driver.set_page_load_timeout(60)
-            #self.driver.set_script_timeout(60)
-            self.init_print_options()
+            if self.driver==None:
+                if Config.BROWSER == 'chrome':
+                    self.setup_chrome_driver()
+                elif Config.BROWSER == 'firefox':
+                    self.setup_motzilla_driver()
+                else:
+                    raise Exception("browser not supported")
+                #self.driver.install_addon('K:\WORKS\PYTHON\SIMPLEXGO\scraper_doktuz\save_pdf-0.1-an+fx.xpi', temporary=True)
+                #self.driver.get("about:support")
+                #addons = self.driver.find_element_by_xpath('//*[contains(text(),"Add-ons") and not(contains(text(),"with"))]')
+                # scrolling to the section on the support page that lists installed extension
+            
+                #self.driver.execute_script("arguments[0].scrollIntoView();", addons)
+                #self.driver.set_page_load_timeout(60)
+                #self.driver.set_script_timeout(60)
+                self.init_print_options()
+            
+        except Exception as e:
+            Logger.critical('DoktuzSeleniumPipeline.setup_driver: {}'.format(e))
+            #raise e
+        finally:
             if self.cookie is not None:
                 self.driver.delete_all_cookies()
                 self.driver.add_cookie({'name': self.cookie[0], 'value': self.cookie[1], 
                     'domain': 'intranet.doktuz.com', 'path': '/'})
-        except Exception as e:
-            Logger.critical('DoktuzSeleniumPipeline.setup_driver: {}'.format(e))
-            raise e
 
     def close_spider(self, spider):
         self.driver.quit()
@@ -80,12 +84,13 @@ class DoktuzSeleniumPipeline:
     
     def setup_chrome_driver(self):
         try:
-            caps = DesiredCapabilities().CHROME
-            caps["pageLoadStrategy"] = "eager"  #  complete
+            caps = DesiredCapabilities.CHROME
+            caps['pageLoadStrategy'] = "eager"
             chrome_options = webdriver.ChromeOptions()
             settings = {"recentDestinations": [{"id": "Save as PDF", "origin": "local", "account": ""}],
             "selectedDestinationId": "Save as PDF", "version": 2}
-            prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings)}
+            prefs = {'printing.print_preview_sticky_settings.appState': json.dumps(settings),
+            'savefile.default_directory': self.local_dir}
             chrome_options.add_experimental_option('prefs', prefs)
             chrome_options.add_argument("--disable-infobars")
             chrome_options.add_argument("--disable-extensions")
@@ -96,12 +101,12 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument('--dns-prefetch-disable')
             chrome_options.add_argument("--aggressive-cache-discard")
+            #chrome_options.binary_location = "C:\Program Files\Google\Chrome Beta\Application\chrome.exe"
             if Config.HIDDEN:
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')
             chrome_options.add_argument('--kiosk-printing')
-            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options, desired_capabilities=caps,
-            service_args=["--verbose", "--log-path=./qc1.log"])
+            self.driver = webdriver.Chrome(executable_path=self.driver_path, options=chrome_options, desired_capabilities=caps)
         except Exception as e:
             raise e
 
