@@ -101,7 +101,7 @@ class DoktuzSeleniumPipeline:
             chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument('--dns-prefetch-disable')
             chrome_options.add_argument("--aggressive-cache-discard")
-            #chrome_options.binary_location = "C:\Program Files\Google\Chrome Beta\Application\chrome.exe"
+            chrome_options.binary_location = "C:\Program Files\Google\Chrome Beta\Application\chrome.exe"
             if Config.HIDDEN:
                 chrome_options.add_argument('--single-process') # this option is not working for windows
                 chrome_options.add_argument('--headless')

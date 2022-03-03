@@ -42,15 +42,18 @@ class DoktuzExcel(Spider):
       Logger.critical('DoktuzExcel.start_requests: fail when spider was starting', exc_info=True)
                                
   def parse(self, response:Response):
-    Logger.info('DoktuzExcel.parse_resultados: init_date {}, end_date {} '.format(self.init_date, self.end_date))
-    self.cookie = response.request.headers.getlist('Cookie')[0].decode('utf-8')
-    url_base = 'https://intranet.doktuz.com/Resultados/Empresa/excel_reporte_vigilancia.php?'
-    date_1 = datetime.datetime.strptime(self.init_date.replace('-','/'), "%d/%m/%Y")
-    date_2 = datetime.datetime.strptime(self.end_date.replace('-','/'), "%d/%m/%Y")
-    while date_1 <= date_2:
-      end_date = date_1 + datetime.timedelta(days=self.by)
-      yield {'url':url_base+'?fechafinal={}&fechainicio={}&dnip=&descripcion=&proyecto=&idempresa4='.format( end_date.strftime('%d-%m-%Y'), date_1.strftime('%d-%m-%Y'),)}
-      date_1 = end_date
+    try:
+        Logger.info('DoktuzExcel.parse_resultados: init_date {}, end_date {} '.format(self.init_date, self.end_date))
+        self.cookie = response.request.headers.getlist('Cookie')[0].decode('utf-8')
+        url_base = 'https://intranet.doktuz.com/Resultados/Empresa/excel_reporte_vigilancia.php?'
+        date_1 = datetime.datetime.strptime(self.init_date.replace('-','/'), "%d/%m/%Y")
+        date_2 = datetime.datetime.strptime(self.end_date.replace('-','/'), "%d/%m/%Y")
+        while date_1 <= date_2:
+          end_date = date_1 + datetime.timedelta(days=int(self.by))
+          yield {'url':url_base+'?fechafinal={}&fechainicio={}&iduser=939&tipusu=2&despaciente=&dnip=&idproyecto=&idempresa=&ro=1'.format( end_date.strftime('%d-%m-%Y'), date_1.strftime('%d-%m-%Y'),)}
+          date_1 = end_date
+    except Exception as e:
+      Logger.warning('DoktuzExcel.parse: fail when spider was parsing', exc_info=True)
 
                   
   

@@ -53,10 +53,10 @@ main()
 
 '''if __name__ == "__main__": # EJECUCION POR INTERFAZ GRAFICA
     Logger.info("La aplicación empezo a las: {}".format(datetime.now()))
-    run_doktuz('01-01-2019', '01-03-2022')
-    #run_doktuz_excel('25-01-2022', '08-02-2022', 7)
+    #run_doktuz('01-01-2019', '01-03-2022')
+    run_doktuz_excel('14-03-2019', '01-03-2022', 5)
     Logger.info("La aplicación finalizo a las: {}".format(datetime.now()))
     logging.shutdown()'''
-# EJECUCION POR TERMINAL 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
+# EJECUCION POR TERMINAL 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
 # scrapy runspider ./src/domain/usecases/get_data.py -o doktuz.csv -t csv 
 

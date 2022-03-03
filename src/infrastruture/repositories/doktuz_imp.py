@@ -40,5 +40,5 @@ class DoktuzRepositoryImp(DoktuzRepository):
             data.to_sql(name='base_vigilancia_medica', con=self._connection.engine, 
             if_exists='append', index=False)
         except Exception as e:
-            Logger.critical('DoktuzRepositoryImp.save_excel_data: ', exc_info=True)
+            Logger.critical('DoktuzRepositoryImp.save_excel_data:{0}'.format(e), exc_info=True)
             raise e
